@@ -18,9 +18,8 @@ if ($userID !== null) {
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($result && !empty($result['photo'])) {
-        $photoPath = $result['photo'];
-
-        // Return the photo path as JSON
+        // Return the relative photo path as JSON
+        $photoPath = 'assets/user-profile/' . $result['username'] . '/' . basename($result['photo']);
         $response = ['status' => 'success', 'filePath' => $photoPath];
         echo json_encode($response);
     } else {

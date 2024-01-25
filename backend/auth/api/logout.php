@@ -10,10 +10,15 @@ if (isset($_SESSION['username'])) {
 if (isset($_SESSION['loggedIn'])) {
     unset($_SESSION['loggedIn']);
 }
-// Destroy the session
-session_destroy();
+
+// Destroy the session if it exists
+if (session_status() === PHP_SESSION_ACTIVE) {
+    session_destroy();
+}
+
 // Output JSON response
 echo json_encode(['status' => 'success', 'redirect' => '/']);
 header('Location: /'); // Redirect to root
 exit();
+
 ?>

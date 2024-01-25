@@ -30,14 +30,18 @@ if ($_FILES["file"] && $userID !== null && $username !== '') {
     // Ensure the target directory exists
     if (!file_exists($target_dir)) {
         if (!mkdir($target_dir, 0777, true)) {
-            // Explicitly set permissions (including subdirectories)
-            chmod($target_dir, 0777);
-        } else {
+            error_log('Failed to create directory: ' . $target_dir); // Log error
             $response = ['status' => 'error', 'message' => 'Failed to create directory'];
             echo json_encode($response);
             exit;
+        } else {
+            // Explicitly set permissions (including subdirectories)
+            chmod($target_dir, 0777);
+            error_log('Directory created: ' . $target_dir); // Log success
         }
     }
+$target_file = $target_dir . basename($_FILES["file"]["name"]);
+error_log('Target file: ' . $target_file); // Log file path
 
     $target_file = $target_dir . basename($_FILES["file"]["name"]);
     $uploadOk = 1;
@@ -95,4 +99,3 @@ if ($_FILES["file"] && $userID !== null && $username !== '') {
 echo json_encode($response);
 
 ?>
-
