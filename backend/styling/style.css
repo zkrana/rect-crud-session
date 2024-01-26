@@ -1,0 +1,363 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100ch;
+}
+
+.card {
+  min-width: 400px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(128, 128, 128, 0.406);
+  background: #f5f5f5eb;
+}
+.card h2 {
+  font-size: 32px;
+  text-align: center;
+  margin: 15px 0 5px 0;
+  font-weight: bold;
+}
+.card p {
+  font-size: 17px;
+  text-align: center;
+}
+.form-group .btn {
+  text-align: center;
+  padding: 7px 30px;
+  font-size: 18px;
+}
+
+/*
+=======================
+=======================
+Dashboard
+=======================
+=======================
+*/
+
+/*
+=======================
+Global Styling
+=======================
+*/
+.flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.block {
+  display: block;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.w-full {
+  width: 100%;
+}
+.max-w-400px {
+  max-width: 400px;
+}
+
+.h-container {
+  padding: 40px;
+}
+.page-heading {
+  font-size: 42px;
+  font-weight: 600;
+  line-height: 45px;
+}
+
+.app-wrapper {
+  display: flex;
+  justify-content: space-between;
+  min-height: 100vh;
+}
+.app-sidebar {
+  width: 20%;
+}
+
+.side-header {
+  background: #fff;
+  box-shadow: 0 2px 4px #0000001a;
+  height: 72px;
+  padding: 0 10px 0 15px;
+  padding-right: 10px;
+  border-right: 1px solid #ccc;
+}
+.sidebard-nav {
+  background: #fff;
+  box-shadow: 0 2px 4px #0000001a;
+  padding: 0 10px 40px 15px;
+  height: 100%;
+  border-top: 1px solid #cecece82;
+}
+.sidebard-nav ul {
+  padding: 0;
+  margin-top: 20px;
+  list-style: none;
+}
+.sidebard-nav ul li {
+  width: 100%;
+  padding: 15px 0;
+  padding-left: 10px;
+  transition: all 0.4s ease-in-out;
+}
+.sidebard-nav ul li.active,
+.sidebard-nav ul li:hover {
+  background-color: #e8effd;
+  border-radius: 4px;
+}
+.sidebard-nav ul li a:hover {
+  text-decoration: none;
+}
+.sidebard-nav ul li a i {
+  color: gray;
+}
+.sidebard-nav ul li:hover a i,
+.sidebard-nav ul li:hover a,
+.sidebard-nav ul .active a,
+.sidebard-nav ul .active a i {
+  color: #007bff !important;
+}
+.sidebard-nav ul li.active a,
+.sidebard-nav ul li.active a i {
+  color: #007bff !important;
+}
+
+.sidebard-nav ul li a {
+  font-size: 20px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: black;
+}
+.devided-nav {
+  margin-top: 40px;
+  border-top: 1px solid #d3d3d369;
+}
+
+.header-body {
+  width: 80%;
+}
+.logo {
+  width: 200px;
+  height: 72px;
+}
+.wrapper-n-icon i {
+  font-size: 24px;
+  cursor: pointer;
+}
+.wrapper-n-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.user {
+  width: 100%;
+  gap: 20px;
+  padding-right: 40px;
+  padding-left: 40px;
+  background: #fff;
+  box-shadow: 0 2px 4px #0000001a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 72px;
+}
+.user-pro {
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
+  background: #fff;
+  padding: 5px;
+  border: 1px solid tomato;
+  overflow: hidden;
+  cursor: pointer;
+}
+.user-pro img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.u-pro-options {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 58px;
+  border: 1px solid #eaeaeac4;
+  border-radius: 8px;
+  padding: 15px 20px;
+  width: 260px;
+  background-color: white;
+}
+.u-name {
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #dfdfdfba;
+  width: 100%;
+  display: flex;
+}
+
+.wrap-u {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.notifications i {
+  font-size: 24px;
+  cursor: pointer;
+}
+.notifications {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.pro-menu {
+  margin: 20px 0;
+  padding: 0;
+  list-style: none;
+  margin-bottom: 0;
+}
+.pro-menu li {
+  padding-bottom: 10px;
+  text-align: left;
+}
+.pro-menu li a {
+  margin: 0;
+}
+.pro-menu li:last-child {
+  padding-top: 5px;
+  margin-top: 20px;
+  border-top: 1px solid #dfdfdfba;
+}
+.account {
+  width: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  position: relative;
+}
+
+/* 
+Reusable Block
+*/
+.sales-small-stats {
+  gap: 32px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+.sales-small-stats-inner {
+  width: calc(33.3333% - 21.3333px);
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%; /* Use 50% for a perfect circle */
+  background: #ff63479e;
+  filter: blur(0.2px); /* Adjust the blur radius as needed */
+}
+.doller {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: tomato;
+}
+.doller i {
+  color: white;
+  font-size: 24px;
+}
+.stats-d span:first-child {
+  font-size: 20px;
+  font-weight: 600;
+  color: #808080de;
+}
+
+.stats-d span:last-child {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000000de;
+}
+.color-g {
+  background: rgba(0, 128, 0, 0.414);
+  filter: blur(0.2px);
+}
+.color-g .doller {
+  background: green;
+}
+.color-g-2 {
+  background-color: #3667ed94;
+  filter: blur(0.2px);
+}
+.color-g-2 .doller {
+  background-color: #3667ed;
+}
+
+@media screen and (max-width: 991px) {
+  .page-heading {
+    font-size: 32px;
+  }
+  .h-container {
+    padding: 20px;
+  }
+  .user {
+    gap: 16px;
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+  .sales-small-stats {
+    gap: 16px;
+    margin-top: 30px;
+  }
+  .sales-small-stats-inner {
+    width: calc(33.3333% - 10.6666px);
+    padding: 10px;
+    gap: 10px;
+  }
+  .stats-d span:first-child {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .stats-d span:last-child {
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+@media screen and (max-width: 840px) {
+  .sales-small-stats-inner {
+    width: calc(50% - 10.6666px);
+  }
+}
+@media screen and (max-width: 575px) {
+  .sales-small-stats-inner {
+    width: 100%;
+  }
+}

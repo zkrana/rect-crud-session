@@ -57,20 +57,18 @@ if ($stmt = $connection->prepare($sql)) {
                 </div>
                 <div class="sidebard-nav">
                     <ul>
-                        <li class="active">
+                        <li class="">
                             <a href="dashboard.php">
                                 <i class="fa-solid fa-table-columns"></i>
                                 <span class="block">Dashboard</span>
                             </a>
                         </li>
-                        
-                        <li class="">
+                        <li class="active">
                             <a href="categories.php">
-                                <i class="fa-solid fa-list"></i>
+                               <i class="fa-solid fa-list"></i>
                                 <span class="block">Categories</span>
                             </a>
                         </li>
-
                         <li>
                             <a href="">
                                <i class="fa-solid fa-cart-flatbed-suitcase"></i>
@@ -186,53 +184,92 @@ if ($stmt = $connection->prepare($sql)) {
                         </div>
                     </div>
                 </div>
+
                 <div class="h-container">
                     <div class="main">
-                        <h1 class="page-heading"> Dashboard </h1>
-                        <p>
-                            <a href="../auth/backend-assets/password-reset.php" class="btn btn-warning">Reset Your Password</a>
-                            
-                        </p>
-
-                        <!-- Statistics -->
-                        <div class="sales-small-stats flex">
-                            <div class="sales-small-stats-inner">
-                                <div class="icon">
-                                    <div class="doller">
-                                        <i class="fa-solid fa-dollar-sign"></i>
-                                    </div>
-                                </div>
-                                <div class="stats-d">
-                                    <span class="block sub-title">Total Sales</span>
-                                    <span class="block satts-number">$124545.200</span>
-                                </div>
-                            </div>   
-                            
-                              <div class="sales-small-stats-inner">
-                                <div class="icon color-g">
-                                    <div class="doller">
-                                        <i class="fa-solid fa-cart-shopping"></i>
-                                    </div>
-                                </div>
-                                <div class="stats-d">
-                                    <span class="block sub-title">Total Orders</span>
-                                    <span class="block satts-number">720</span>
-                                </div>
-                            </div>   
-
-
-                             <div class="sales-small-stats-inner">
-                                <div class="icon color-g-2">
-                                    <div class="doller">
-                                        <i class="fa-solid fa-cart-flatbed-suitcase"></i>
-                                    </div>
-                                </div>
-                                <div class="stats-d">
-                                    <span class="block sub-title">Total Products</span>
-                                    <span class="block satts-number"> 120 </span>
-                                </div>
-                            </div>   
+                        <div class="flex">
+                            <h1 class="page-heading"> Categories </h1>
+                           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Add Category</button>
                         </div>
+
+                        <?php
+                            // Check for success query parameter
+                            if (isset($_GET['success'])) {
+                                echo '<div class="max-w-400px alert alert-success mt-2" role="alert">' . $_GET['success'] . '</div>';
+                            }
+                        ?>
+
+
+                        <?php
+                        // Assuming the database connection code is included here
+
+                        // Fetch categories from the database
+                        $sql = "SELECT * FROM categories";
+                        $stmt = $connection->query($sql);
+                        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        ?>
+
+                        <!-- Existing Categories -->
+                        <div class="existing-cat mt-5">
+                            <h2>Existing Categories</h2>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Category Name</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Created At</th>
+                                        <th scope="col">Updated At</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($categories as $category): ?>
+                                        <tr>
+                                            <th scope="row"><?php echo $category['id']; ?></th>
+                                            <td><?php echo $category['name']; ?></td>
+                                            <td><?php echo $category['category_description']; ?></td>
+                                            <td><?php echo $category['created_at']; ?></td>
+                                            <td><?php echo $category['updated_at']; ?></td>
+                                            <td>
+                                                <a class="btn btn-primary" href="category_edit.php?up_id=<?php echo $category['id']; ?>">Edit</a> | 
+                                                <a class="btn btn-danger" href="category_edit.php?del_id=<?php echo $category['id']; ?>">Delete</a>
+                                            </td>
+
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Categories -->
+                        <!-- Modal -->
+                        <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addCategoryModalLabel">Add Category</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Your form goes here -->
+                                        <form id="categoryForm" action="../auth/backend-assets/category/add_category.php" method="post">
+                                            <div class="mb-3">
+                                                <label for="categoryName" class="form-label">Category Name</label>
+                                                <input type="text" class="form-control" id="categoryName" name="categoryName" aria-describedby="emailHelp">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="categoryDescription" class="form-label">Category Description</label>
+                                                <input type="text" class="form-control" id="categoryDescription" name="categoryDescription">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Add Category</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
@@ -240,11 +277,15 @@ if ($stmt = $connection->prepare($sql)) {
 
     </main>
 
+    <!-- Bootstrap JS (you can use the CDN or download the file and host it locally) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-    function toggleUserOptions() {
-        var options = document.getElementById("userOptions");
-        options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
-    }
-</script>
+        function toggleUserOptions() {
+            var options = document.getElementById("userOptions");
+            options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
+        }
+    </script>
+    <script src="js/add-category.js"></script>
 </body>
 </html>

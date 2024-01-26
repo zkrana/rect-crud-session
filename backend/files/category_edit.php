@@ -32,6 +32,32 @@ if ($stmt = $connection->prepare($sql)) {
 
     unset($stmt); // Close statement
 }
+
+
+// Edit Category
+require_once "../auth/db-connection/config.php";
+
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
+    $category_id = $_GET['up_id'];
+
+    // Fetch category details based on the ID
+    $sql = "SELECT * FROM categories WHERE id = :category_id";
+    $stmt = $connection->prepare($sql);
+    $stmt->bindParam(":category_id", $category_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $category = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$category) {
+        // Redirect or show an error message if the category is not found
+        header("Location: category_list.php");
+        exit();
+    }
+} else {
+    // Redirect or show an error message if 'up_id' is not set
+    header("Location: category_list.php");
+    exit();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -57,20 +83,18 @@ if ($stmt = $connection->prepare($sql)) {
                 </div>
                 <div class="sidebard-nav">
                     <ul>
-                        <li class="active">
+                        <li class="">
                             <a href="dashboard.php">
                                 <i class="fa-solid fa-table-columns"></i>
                                 <span class="block">Dashboard</span>
                             </a>
                         </li>
-                        
-                        <li class="">
+                        <li class="active">
                             <a href="categories.php">
-                                <i class="fa-solid fa-list"></i>
+                               <i class="fa-solid fa-list"></i>
                                 <span class="block">Categories</span>
                             </a>
                         </li>
-
                         <li>
                             <a href="">
                                <i class="fa-solid fa-cart-flatbed-suitcase"></i>
@@ -186,53 +210,61 @@ if ($stmt = $connection->prepare($sql)) {
                         </div>
                     </div>
                 </div>
+
                 <div class="h-container">
                     <div class="main">
-                        <h1 class="page-heading"> Dashboard </h1>
-                        <p>
-                            <a href="../auth/backend-assets/password-reset.php" class="btn btn-warning">Reset Your Password</a>
-                            
-                        </p>
-
-                        <!-- Statistics -->
-                        <div class="sales-small-stats flex">
-                            <div class="sales-small-stats-inner">
-                                <div class="icon">
-                                    <div class="doller">
-                                        <i class="fa-solid fa-dollar-sign"></i>
-                                    </div>
-                                </div>
-                                <div class="stats-d">
-                                    <span class="block sub-title">Total Sales</span>
-                                    <span class="block satts-number">$124545.200</span>
-                                </div>
-                            </div>   
-                            
-                              <div class="sales-small-stats-inner">
-                                <div class="icon color-g">
-                                    <div class="doller">
-                                        <i class="fa-solid fa-cart-shopping"></i>
-                                    </div>
-                                </div>
-                                <div class="stats-d">
-                                    <span class="block sub-title">Total Orders</span>
-                                    <span class="block satts-number">720</span>
-                                </div>
-                            </div>   
-
-
-                             <div class="sales-small-stats-inner">
-                                <div class="icon color-g-2">
-                                    <div class="doller">
-                                        <i class="fa-solid fa-cart-flatbed-suitcase"></i>
-                                    </div>
-                                </div>
-                                <div class="stats-d">
-                                    <span class="block sub-title">Total Products</span>
-                                    <span class="block satts-number"> 120 </span>
-                                </div>
-                            </div>   
+                        <div class="flex">
+                            <h1 class="page-heading">Edit Categories </h1>
+                           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Add Category</button>
                         </div>
+
+                        <!-- Existing Categories -->
+                        <div class="mt-5">
+                            <form method="post" action="../auth/backend-assets/category/update_category.php">
+                                <input type="hidden" name="category_id" value="<?php echo $category['id']; ?>">
+
+                                <div class="form-group">
+                                    <label for="categoryName">Category Name:</label>
+                                    <input type="text" class="form-control" id="categoryName" name="categoryName" value="<?php echo $category['name']; ?>">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="categoryDescription">Category Description:</label>
+                                    <input type="text" class="form-control" id="categoryDescription" name="categoryDescription" value="<?php echo $category['category_description']; ?>">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Update Category</button>
+                            </form>
+                        </div>
+
+                        <!-- Categories -->
+                        <!-- Modal -->
+                        <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addCategoryModalLabel">Add Category</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Your form goes here -->
+                                        <form id="categoryForm" action="../auth/backend-assets/category/add_category.php" method="post">
+                                            <div class="mb-3">
+                                                <label for="categoryName" class="form-label">Category Name</label>
+                                                <input type="text" class="form-control" id="categoryName" name="categoryName" aria-describedby="emailHelp">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="categoryDescription" class="form-label">Category Description</label>
+                                                <input type="text" class="form-control" id="categoryDescription" name="categoryDescription">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Add Category</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
@@ -240,11 +272,15 @@ if ($stmt = $connection->prepare($sql)) {
 
     </main>
 
+    <!-- Bootstrap JS (you can use the CDN or download the file and host it locally) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-    function toggleUserOptions() {
-        var options = document.getElementById("userOptions");
-        options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
-    }
-</script>
+        function toggleUserOptions() {
+            var options = document.getElementById("userOptions");
+            options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
+        }
+    </script>
+    <script src="js/add-category.js"></script>
 </body>
 </html>
