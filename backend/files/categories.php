@@ -70,7 +70,7 @@ if ($stmt = $connection->prepare($sql)) {
                             </a>
                         </li>
                         <li>
-                            <a href="">
+                            <a href="products.php">
                                <i class="fa-solid fa-cart-flatbed-suitcase"></i>
                                 <span class="block">Products</span>
                             </a>
@@ -177,7 +177,7 @@ if ($stmt = $connection->prepare($sql)) {
 
                                 <ul class="pro-menu">
                                     <li><a href="">Profile</a></li>
-                                    <li><a href="">Settings</a></li>
+                                    <li><a href="admin-settings.php">Admin Settings</a></li>
                                     <li><a href="../auth/backend-assets/logout.php" class="">Log out</a></li>
                                 </ul>
                             </div>
@@ -195,16 +195,16 @@ if ($stmt = $connection->prepare($sql)) {
                         <?php
                             // Check for success query parameter
                             if (isset($_GET['success'])) {
-                                echo '<div class="max-w-400px alert alert-success mt-2" role="alert">' . $_GET['success'] . '</div>';
+                                echo '<div id="error" class="max-w-400px alert alert-success mt-2" role="alert">' . $_GET['success'] . '</div>';
                             }
                         ?>
 
-
                         <?php
-                        // Assuming the database connection code is included here
-
                         // Fetch categories from the database
-                        $sql = "SELECT * FROM categories";
+                        $sql = "SELECT c.*, COUNT(p.id) AS product_count
+                                FROM categories c
+                                LEFT JOIN products p ON c.id = p.category_id
+                                GROUP BY c.id";
                         $stmt = $connection->query($sql);
                         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         ?>
@@ -212,37 +212,40 @@ if ($stmt = $connection->prepare($sql)) {
                         <!-- Existing Categories -->
                         <div class="existing-cat mt-5">
                             <h2>Existing Categories</h2>
-                            <table class="table table-striped">
+                            <table class="table table-striped mt-3">
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">Category Name</th>
                                         <th scope="col">Description</th>
+                                        <th scope="col">Product Count</th>
                                         <th scope="col">Created At</th>
                                         <th scope="col">Updated At</th>
                                         <th scope="col">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($categories as $category): ?>
+                                    <?php 
+                                        $counter = 1; // Initialize a counter variable
+                                        foreach ($categories as $category): 
+                                    ?>
                                         <tr>
-                                            <th scope="row"><?php echo $category['id']; ?></th>
+                                            <th scope="row"><?php echo $counter++; ?></th>
                                             <td><?php echo $category['name']; ?></td>
                                             <td><?php echo $category['category_description']; ?></td>
+                                            <td><?php echo $category['product_count']; ?></td>
                                             <td><?php echo $category['created_at']; ?></td>
                                             <td><?php echo $category['updated_at']; ?></td>
                                             <td>
                                                 <a class="btn btn-primary" href="category_edit.php?up_id=<?php echo $category['id']; ?>">Edit</a> | 
-                                                <a class="btn btn-danger" href="category_edit.php?del_id=<?php echo $category['id']; ?>">Delete</a>
+                                                <a class="btn btn-danger" href="../auth/backend-assets/category/category_delete.php?del_id=<?php echo $category['id']; ?>">Delete</a>
                                             </td>
-
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- Categories -->
                         <!-- Modal -->
                         <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
@@ -268,8 +271,6 @@ if ($stmt = $connection->prepare($sql)) {
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>
@@ -286,6 +287,6 @@ if ($stmt = $connection->prepare($sql)) {
             options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
         }
     </script>
-    <script src="js/add-category.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

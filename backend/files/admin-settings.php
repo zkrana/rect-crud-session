@@ -32,32 +32,6 @@ if ($stmt = $connection->prepare($sql)) {
 
     unset($stmt); // Close statement
 }
-
-
-// Edit Category
-require_once "../auth/db-connection/config.php";
-
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
-    $category_id = $_GET['up_id'];
-
-    // Fetch category details based on the ID
-    $sql = "SELECT * FROM categories WHERE id = :category_id";
-    $stmt = $connection->prepare($sql);
-    $stmt->bindParam(":category_id", $category_id, PDO::PARAM_INT);
-    $stmt->execute();
-    $category = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$category) {
-        // Redirect or show an error message if the category is not found
-        header("Location: category_list.php");
-        exit();
-    }
-} else {
-    // Redirect or show an error message if 'up_id' is not set
-    header("Location: category_list.php");
-    exit();
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -83,18 +57,20 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
                 </div>
                 <div class="sidebard-nav">
                     <ul>
-                        <li class="">
+                        <li class="active">
                             <a href="dashboard.php">
                                 <i class="fa-solid fa-table-columns"></i>
                                 <span class="block">Dashboard</span>
                             </a>
                         </li>
-                        <li class="active">
+                        
+                        <li class="">
                             <a href="categories.php">
-                               <i class="fa-solid fa-list"></i>
+                                <i class="fa-solid fa-list"></i>
                                 <span class="block">Categories</span>
                             </a>
                         </li>
+
                         <li>
                             <a href="products.php">
                                <i class="fa-solid fa-cart-flatbed-suitcase"></i>
@@ -212,66 +188,148 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
                 </div>
 
                 <div class="h-container">
-                    <div class="main">
-                        <div class="flex">
-                            <h1 class="page-heading">Edit Categories </h1>
-                           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Add Category</button>
+                    <div class="main flex">
+                        <h1 class="page-heading"> Admin Settings </h1>
+                        <div class="admin-s-wrapper flex max-w-400px">
+                            <button type="button" class="btn btn-danger" onclick="showBlockedIP()">Blocked IP</button>
+                            <button type="button" class="btn btn-secondary" onclick="showAccessLogs()">Access Logs</button>
+                        </div>
+                    </div>
+                    <div class="admin-s-body mt-5">
+                        <div id="blockedIPSection" class="hidden">
+                            <h3>Blocked IP Section</h3>
+                            <?php
+                                // Check for success parameter in the URL
+                                if (isset($_GET["success"]) && $_GET["success"] == 1) {
+                                    echo "<div class='alert alert-success'>Blocked IP deleted successfully.</div>";
+                                } elseif (isset($_GET["error"]) && $_GET["error"] == 1) {
+                                    echo "<div class='alert alert-danger'>Error deleting blocked IP. Please try again.</div>";
+                                }
+                            ?>
+
+                            <table id="blockedIPTable" class="table table-striped mt-3">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>IP Address</th>
+                                        <th>Blocked Until</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- PHP code to fetch and display blocked IP data -->
+                                    <?php
+                                    // Include your database connection code here
+
+                                    // Fetch blocked IP data from the database with pagination
+                                    $limit = 20; // Number of records per page
+                                    $page = (isset($_GET['page']) && is_numeric($_GET['page'])) ? $_GET['page'] : 1;
+                                    $start = ($page - 1) * $limit;
+
+                                    $sql = "SELECT * FROM blocked_ips LIMIT $start, $limit";
+                                    $stmt = $connection->prepare($sql);
+                                    $stmt->execute();
+                                    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                    // Display the data in the table
+                                    foreach ($result as $row) {
+                                        echo "<tr>";
+                                        echo "<td>{$row['id']}</td>";
+                                        echo "<td>{$row['ip_address']}</td>";
+                                        echo "<td>{$row['blocked_until']}</td>";
+                                        echo "<td><a href='../auth/backend-assets/admin-settings/del_block_ip?id={$row['id']}'>Delete</a></td>";
+                                        echo "</tr>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+
+                            <!-- Pagination -->
+                            <ul class="pagination">
+                                <?php
+                                $sql = "SELECT COUNT(*) as count FROM blocked_ips";
+                                $stmt = $connection->prepare($sql);
+                                $stmt->execute();
+                                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                                $total_pages = ceil($row['count'] / $limit);
+
+                                for ($i = 1; $i <= $total_pages; $i++) {
+                                    echo "<li class='page-item'><a class='page-link' href='?page=$i'>$i</a></li>";
+                                }
+                                ?>
+                            </ul>
                         </div>
 
-                        <!-- Existing Categories -->
-                        <div class="mt-5">
-                            <form method="post" action="../auth/backend-assets/category/update_category.php">
-                                <input type="hidden" name="category_id" value="<?php echo $category['id']; ?>">
+                        <div id="accessLogsSection" class="hidden">
+                            <h3>Access Logs Section</h3>
+                            <?php
+                                // Check for success parameter in the URL
+                                if (isset($_GET["success"]) && $_GET["success"] == 1) {
+                                    echo "<div class='alert alert-success'>Access log deleted successfully.</div>";
+                                } elseif (isset($_GET["error"]) && $_GET["error"] == 1) {
+                                    echo "<div class='alert alert-danger'>Error deleting Access log. Please try again.</div>";
+                                }
+                            ?>
 
-                                <div class="form-group">
-                                    <label for="categoryName">Category Name:</label>
-                                    <input type="text" class="form-control" id="categoryName" name="categoryName" value="<?php echo $category['name']; ?>">
-                                </div>
+                            <table id="accessLogsTable" class="table table-striped mt-3">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>IP Address</th>
+                                        <th>Access Time</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- PHP code to fetch and display access logs data -->
+                                    <?php
+                                    // Include your database connection code here
 
-                                <div class="form-group">
-                                    <label for="categoryDescription">Category Description:</label>
-                                    <input type="text" class="form-control" id="categoryDescription" name="categoryDescription" value="<?php echo $category['category_description']; ?>">
-                                </div>
+                                    // Fetch access logs data from the database with pagination
+                                    $limit = 20; // Number of records per page
+                                    $page = (isset($_GET['page']) && is_numeric($_GET['page'])) ? $_GET['page'] : 1;
+                                    $start = ($page - 1) * $limit;
 
-                                <button type="submit" class="btn btn-primary">Update Category</button>
-                            </form>
+                                    $sql = "SELECT * FROM access_logs LIMIT $start, $limit";
+                                    $stmt = $connection->prepare($sql);
+                                    $stmt->execute();
+                                    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                    // Display the data in the table
+                                    foreach ($result as $row) {
+                                        echo "<tr>";
+                                        echo "<td>{$row['id']}</td>";
+                                        echo "<td>{$row['ip_address']}</td>";
+                                        echo "<td>{$row['access_time']}</td>";
+                                        echo "<td><a href='../auth/backend-assets/admin-settings/del_aces_logs.php?id={$row['id']}'>Delete</a></td>";
+                                        echo "</tr>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+
+                            <!-- Pagination -->
+                            <ul class="pagination">
+                                <?php
+                                $sql = "SELECT COUNT(*) as count FROM access_logs";
+                                $stmt = $connection->prepare($sql);
+                                $stmt->execute();
+                                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                                $total_pages = ceil($row['count'] / $limit);
+
+                                for ($i = 1; $i <= $total_pages; $i++) {
+                                    echo "<li class='page-item'><a class='page-link' href='?page=$i'>$i</a></li>";
+                                }
+                                ?>
+                            </ul>
                         </div>
 
-                        <!-- Categories -->
-                        <!-- Modal -->
-                        <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="addCategoryModalLabel">Add Category</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <!-- Your form goes here -->
-                                        <form id="categoryForm" action="../auth/backend-assets/category/add_category.php" method="post">
-                                            <div class="mb-3">
-                                                <label for="categoryName" class="form-label">Category Name</label>
-                                                <input type="text" class="form-control" id="categoryName" name="categoryName" aria-describedby="emailHelp">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="categoryDescription" class="form-label">Category Description</label>
-                                                <input type="text" class="form-control" id="categoryDescription" name="categoryDescription">
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Add Category</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
     </main>
-
-    <!-- Bootstrap JS (you can use the CDN or download the file and host it locally) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         function toggleUserOptions() {

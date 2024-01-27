@@ -132,10 +132,6 @@ if ($stmt = $connection->prepare($sql)) {
     unset($stmt);
 }
     }
-
-
-    
-
     // Close connection
     mysqli_close($connection);
 }
@@ -151,7 +147,7 @@ if ($stmt = $connection->prepare($sql)) {
 </head>
 <body>
     <div class="wrapper">
-        <div class="card">
+        <div class="card card-w">
             <h2>Sign Up</h2>
             <p>Please fill this form to create an account.</p>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">

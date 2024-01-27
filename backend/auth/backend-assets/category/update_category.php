@@ -1,5 +1,15 @@
 <?php
 require_once "../../db-connection/config.php";
+// Initialize the session
+session_start();
+
+
+// Check if the user is logged in, if not then redirect him to the login page
+if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
+    header("location: ../../../index.php");
+    exit;
+}
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['category_id'])) {
     $category_id = $_POST['category_id'];

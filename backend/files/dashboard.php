@@ -72,7 +72,7 @@ if ($stmt = $connection->prepare($sql)) {
                         </li>
 
                         <li>
-                            <a href="">
+                            <a href="products.php">
                                <i class="fa-solid fa-cart-flatbed-suitcase"></i>
                                 <span class="block">Products</span>
                             </a>
@@ -179,7 +179,7 @@ if ($stmt = $connection->prepare($sql)) {
 
                                 <ul class="pro-menu">
                                     <li><a href="">Profile</a></li>
-                                    <li><a href="">Settings</a></li>
+                                    <li><a href="admin-settings.php">Admin Settings</a></li>
                                     <li><a href="../auth/backend-assets/logout.php" class="">Log out</a></li>
                                 </ul>
                             </div>
@@ -241,10 +241,11 @@ if ($stmt = $connection->prepare($sql)) {
     </main>
 
     <script>
-    function toggleUserOptions() {
-        var options = document.getElementById("userOptions");
-        options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
-    }
-</script>
+        function toggleUserOptions() {
+            var options = document.getElementById("userOptions");
+            options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
+        }
+    </script>
+    <script src="js/main.js"></script>
 </body>
 </html>
