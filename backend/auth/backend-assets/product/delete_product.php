@@ -33,23 +33,37 @@ $productId = $_GET['del_id'];
 // Debugging: Output product ID
 echo "Product ID to delete: " . $productId;
 
-// Prepare and execute the SQL query to delete the product
-$sqlDelete = "DELETE FROM products WHERE id = :productId";
-$stmtDelete = $connection->prepare($sqlDelete);
+// Delete variations associated with the product
+$sqlDeleteVariations = "DELETE FROM variations WHERE product_id = :productId";
+$stmtDeleteVariations = $connection->prepare($sqlDeleteVariations);
+$stmtDeleteVariations->bindParam(":productId", $productId, PDO::PARAM_INT);
+
+// Prepare the statement for deleting the product
+$sqlDeleteProduct = "DELETE FROM products WHERE id = :productId";
+$stmtDelete = $connection->prepare($sqlDeleteProduct);
 $stmtDelete->bindParam(":productId", $productId, PDO::PARAM_INT);
 
 try {
     $connection->beginTransaction();
 
-    if ($stmtDelete->execute()) {
-        // Product deleted successfully
-        $connection->commit();
-        header("Location: ../../../files/products.php?success=Product deleted successfully.");
-        exit;
+    // Delete variations first
+    if ($stmtDeleteVariations->execute()) {
+        // After variations are deleted, delete the product
+        if ($stmtDelete->execute()) {
+            // Product deleted successfully
+            $connection->commit();
+            header("Location: ../../../files/products.php?success=Product deleted successfully.");
+            exit;
+        } else {
+            // Product deletion failed
+            $connection->rollBack();
+            header("Location: ../../../files/products.php?error=Oops! Something went wrong during product deletion. Please try again later.");
+            exit;
+        }
     } else {
-        // Product deletion failed
+        // Variations deletion failed
         $connection->rollBack();
-        header("Location: ../../../files/products.php?error=Oops! Something went wrong during product deletion. Please try again later.");
+        header("Location: ../../../files/products.php?error=Oops! Something went wrong during variations deletion. Please try again later.");
         exit;
     }
 } catch (Exception $e) {

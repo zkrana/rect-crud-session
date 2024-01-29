@@ -76,8 +76,9 @@ function formatPrice($price, $currencyCode) {
                     <div class="logo flex">
                         <img src="images/logo.webp" alt="logo">
                     </div>
-                    <div class="wrapper-n-icon">
+                    <div id="des-nav" class="wrapper-n-icon">
                         <i class="fa-solid fa-bars"></i>
+                        <i class="fa-solid fa-xmark close"></i>
                     </div>
                 </div>
                 <div class="sidebard-nav">
@@ -88,12 +89,14 @@ function formatPrice($price, $currencyCode) {
                                 <span class="block">Dashboard</span>
                             </a>
                         </li>
+                        
                         <li class="">
                             <a href="categories.php">
-                               <i class="fa-solid fa-list"></i>
+                                <i class="fa-solid fa-list"></i>
                                 <span class="block">Categories</span>
                             </a>
                         </li>
+
                         <li class="active">
                             <a href="products.php">
                                <i class="fa-solid fa-cart-flatbed-suitcase"></i>
@@ -157,6 +160,11 @@ function formatPrice($price, $currencyCode) {
                 </div>
             </div>
             <div class="header-body">
+                <div class="app-sidebar-mb">
+                    <div class="nav-mb-icon">
+                        <i class="fa-solid fa-bars"></i>
+                    </div>
+                </div>
                 <div class="user flex-end">
                     <div class="search">
                         <form class="d-flex gap-3" role="search">
@@ -217,57 +225,68 @@ function formatPrice($price, $currencyCode) {
                     </div>
 
                     <!-- Display the product form for editing -->
-                    <form id="editProductForm" action="../auth/backend-assets/product/update_product.php" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="productId" value="<?php echo $product['id']; ?>">
+                        <form id="editProductForm" action="../auth/backend-assets/product/update_product.php" method="post" enctype="multipart/form-data">
 
+                        <!-- Hidden field for product ID -->
+                        <input type="hidden" name="productId" value="<?php echo htmlspecialchars($product['id'] ?? ''); ?>">
+
+                        <!-- Product Name -->
                         <div class="mb-3">
                             <label for="editProductName" class="form-label">Product Name</label>
-                            <input type="text" class="form-control" id="editProductName" name="editProductName" value="<?php echo $product['name']; ?>" required>
+                            <input type="text" class="form-control" id="editProductName" name="editProductName" value="<?php echo htmlspecialchars($product['name'] ?? ''); ?>" required>
                         </div>
 
+                        <!-- Product Description -->
                         <div class="mb-3">
                             <label for="editProductDescription" class="form-label">Product Description</label>
-                            <input type="text" class="form-control" id="editProductDescription" name="editProductDescription" value="<?php echo $product['description']; ?>" required>
+                            <input type="text" class="form-control" id="editProductDescription" name="editProductDescription" value="<?php echo htmlspecialchars($product['description'] ?? ''); ?>" required>
                         </div>
 
+                        <!-- Product Price -->
                         <div class="mb-3">
                             <label for="editProductPrice" class="form-label">Product Price</label>
                             <div class="input-group">
                                 <span id="editCurrencySymbol" class="input-group-text"></span>
-                                <input type="text" class="form-control" id="editProductPrice" name="editProductPrice" value="<?php echo $product['price']; ?>" required>
+                                <input type="text" class="form-control" id="editProductPrice" name="editProductPrice" value="<?php echo htmlspecialchars($product['price'] ?? ''); ?>" required>
                             </div>
                         </div>
 
+                        <!-- Currency -->
                         <div class="mb-3">
                             <label for="editCurrency" class="form-label">Currency</label>
                             <select class="form-select" id="editCurrency" name="editProductCurrency" required>
+                                <!-- Add currency options as needed -->
                                 <option value="BDT" <?php echo ($product['currency_code'] == 'BDT') ? 'selected' : ''; ?>>BDT (Bangladeshi Taka)</option>
                                 <option value="USD" <?php echo ($product['currency_code'] == 'USD') ? 'selected' : ''; ?>>USD (United States Dollar)</option>
-                                <!-- Add more currency options as needed -->
                             </select>
                         </div>
 
+                        <!-- Product Category -->
                         <div class="mb-3">
                             <label for="editProductCategory" class="form-label">Product Category</label>
                             <select class="form-select" id="editProductCategory" name="editProductCategory" required>
                                 <?php foreach ($categories as $category): ?>
-                                    <option value="<?php echo $category['id']; ?>" <?php echo ($product['category_id'] == $category['id']) ? 'selected' : ''; ?>><?php echo $category['name']; ?></option>
+                                    <option value="<?php echo $category['id']; ?>" <?php echo ($product['category_id'] == $category['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($category['name']); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
 
+                        <!-- Stock Quantity -->
                         <div class="mb-3">
                             <label for="editProductStock" class="form-label">Stock Quantity</label>
-                            <input type="text" class="form-control" id="editProductStock" name="editProductStock" value="<?php echo $product['stock_quantity']; ?>" required>
+                            <input type="text" class="form-control" id="editProductStock" name="editProductStock" value="<?php echo htmlspecialchars($product['stock_quantity'] ?? ''); ?>" required>
                         </div>
 
+                        <!-- Product Photo -->
                         <div class="mb-3">
                             <label for="editProductPhoto" class="form-label">Product Photo</label>
                             <input type="file" class="form-control" id="editProductPhoto" name="editProductPhoto" accept="image/*">
                         </div>
 
-                       <button type="submit" class="btn btn-primary">Update Product</button>
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary">Update Product</button>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -317,6 +336,19 @@ function formatPrice($price, $currencyCode) {
 
     // Call the function initially to set the default currency symbol
     updateCurrencySymbol();
+
+            document.addEventListener('DOMContentLoaded', function () {
+            const wrapperIcon = document.querySelector('.app-sidebar-mb');
+            const appWrapperS = document.querySelector('.app-wrapper');
+            const deskNav =  document.getElementById("des-nav");
+
+        wrapperIcon.addEventListener('click', function () {
+                appWrapperS.classList.toggle('show-sidebar');
+            });
+        deskNav.addEventListener('click', function () {
+                appWrapperS.classList.remove('show-sidebar');
+            });
+        });
     </script>
     <!-- <script src="js/main.js"></script> -->
 </body>

@@ -77,8 +77,9 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
                     <div class="logo flex">
                         <img src="images/logo.webp" alt="logo">
                     </div>
-                    <div class="wrapper-n-icon">
+                    <div id="des-nav" class="wrapper-n-icon">
                         <i class="fa-solid fa-bars"></i>
+                        <i class="fa-solid fa-xmark close"></i>
                     </div>
                 </div>
                 <div class="sidebard-nav">
@@ -89,12 +90,14 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
                                 <span class="block">Dashboard</span>
                             </a>
                         </li>
+                        
                         <li class="active">
                             <a href="categories.php">
-                               <i class="fa-solid fa-list"></i>
+                                <i class="fa-solid fa-list"></i>
                                 <span class="block">Categories</span>
                             </a>
                         </li>
+
                         <li>
                             <a href="products.php">
                                <i class="fa-solid fa-cart-flatbed-suitcase"></i>
@@ -158,6 +161,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
                 </div>
             </div>
             <div class="header-body">
+                <div class="app-sidebar-mb">
+                    <div class="nav-mb-icon">
+                        <i class="fa-solid fa-bars"></i>
+                    </div>
+                </div>
                 <div class="user flex-end">
                     <div class="search">
                         <form class="d-flex gap-3" role="search">
@@ -278,6 +286,18 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
             var options = document.getElementById("userOptions");
             options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
         }
+                document.addEventListener('DOMContentLoaded', function () {
+            const wrapperIcon = document.querySelector('.app-sidebar-mb');
+            const appWrapperS = document.querySelector('.app-wrapper');
+            const deskNav =  document.getElementById("des-nav");
+
+        wrapperIcon.addEventListener('click', function () {
+                appWrapperS.classList.toggle('show-sidebar');
+            });
+        deskNav.addEventListener('click', function () {
+                appWrapperS.classList.remove('show-sidebar');
+            });
+        });
     </script>
     <script src="js/main.js"></script>
 </body>

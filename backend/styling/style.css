@@ -87,9 +87,14 @@ Global Styling
 .max-w-400px {
   max-width: 400px;
 }
-
+.pagination {
+  justify-content: center !important;
+  margin-top: 20px !important;
+  gap: 5px !important;
+}
 .h-container {
   padding: 40px;
+  transition: all 0.4s ease-in-out;
 }
 .page-heading {
   font-size: 42px;
@@ -103,7 +108,7 @@ Global Styling
   min-height: 100vh;
 }
 .app-sidebar {
-  width: 20%;
+  width: 15%;
 }
 
 .side-header {
@@ -112,7 +117,7 @@ Global Styling
   height: 72px;
   padding: 0 10px 0 15px;
   padding-right: 10px;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid #cccccc42;
 }
 .sidebard-nav {
   background: #fff;
@@ -168,7 +173,7 @@ Global Styling
 }
 
 .header-body {
-  width: 80%;
+  width: 85%;
 }
 .logo {
   width: 200px;
@@ -342,6 +347,50 @@ Reusable Block
   background-color: #3667ed;
 }
 
+@media screen and (max-width: 1444px) {
+  .sidebard-nav ul li a {
+    font-size: 18px;
+    gap: 7px;
+  }
+  .sidebard-nav ul li {
+    padding: 10px 0;
+    padding-left: 15px;
+  }
+  .user-pro {
+    width: 40px;
+    height: 40px;
+  }
+  .wrap-u i {
+    font-size: 12px;
+  }
+  .notifications i {
+    font-size: 20px;
+  }
+  .page-heading {
+    font-size: 32px;
+  }
+  .stats-d span:first-child {
+    font-size: 17px;
+  }
+  .stats-d span:last-child {
+    font-size: 18px;
+  }
+  .icon {
+    width: 50px;
+    height: 50px;
+  }
+  .doller {
+    width: 40px;
+    height: 40px;
+  }
+  .doller i {
+    font-size: 20px;
+  }
+  .existing-cat {
+    overflow-x: auto;
+  }
+}
+
 @media screen and (max-width: 991px) {
   .page-heading {
     font-size: 32px;
@@ -457,4 +506,142 @@ Products Page
 .main-prodict-d-wrapper .card-body .btn-group a:last-child {
   border: 1px solid rgba(255, 99, 71, 0.771);
   color: tomato;
+}
+
+@media screen and (max-width: 1366px) {
+  .main-prodict-d-wrapper .card {
+    width: calc(33.3333% - 12px) !important;
+  }
+  .product-dash-heading {
+    font-size: 16px;
+  }
+  .main-prodict-d-wrapper .card-body p {
+    font-size: 13px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .app-sidebar-mb,
+  #des-nav {
+    display: none;
+  }
+}
+@media screen and (max-width: 1024px) {
+  .main-prodict-d-wrapper .card {
+    width: calc(50% - 12px) !important;
+  }
+  .app-sidebar-mb {
+    display: flex;
+    width: 50px;
+    background: #fff;
+    box-shadow: 0 2px 4px #0000001a;
+    justify-content: center;
+    align-items: center;
+    height: 72px;
+    font-size: 18px;
+    cursor: pointer;
+    position: fixed;
+    z-index: 99999;
+  }
+  .header-body {
+    width: 100%;
+    display: flex;
+    position: relative;
+  }
+  .user {
+    width: calc(100% - 50px);
+    position: fixed;
+    right: 0;
+    z-index: 99999;
+  }
+  .h-container {
+    padding: 20px;
+    margin-top: 0;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 72px;
+  }
+  .show-sidebar .app-sidebar-mb {
+    display: none;
+  }
+  .show-sidebar .header-body {
+    width: calc(100% - 200px);
+  }
+  .sidebard-nav {
+    padding: 0px 2px 40px 2px;
+  }
+  .show-sidebar .user {
+    width: 100%;
+    position: static;
+  }
+  .app-sidebar {
+    width: 200px;
+    transition: transform 0.3s ease-in-out;
+    position: fixed;
+    top: 0;
+    left: -100%;
+    height: 100vh;
+    z-index: 1;
+  }
+  .show-sidebar .app-sidebar {
+    transform: translateX(0);
+    position: static;
+    transition: transform 0.3s ease-in-out;
+    z-index: 9999999;
+  }
+  .close {
+    display: none;
+  }
+  .show-sidebar .close {
+    display: block;
+  }
+  .show-sidebar #des-nav i:first-child {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .show-sidebar .header-body {
+    width: 100%;
+  }
+  .show-sidebar .app-sidebar {
+    position: absolute;
+    left: 0;
+  }
+}
+
+@media screen and (max-width: 575px) {
+  .search {
+    display: none;
+  }
+  .user {
+    justify-content: end;
+  }
+  .app-sidebar-mb,
+  .user {
+    box-shadow: none;
+  }
+  .account {
+    width: 40%;
+  }
+  .main {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: baseline;
+  }
+  .admin-s-body {
+    margin-top: 20px !important;
+  }
+  #accessLogsSection {
+    overflow-x: auto;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .main-prodict-d-wrapper .card {
+    width: 100% !important;
+    min-width: 100%;
+  }
 }

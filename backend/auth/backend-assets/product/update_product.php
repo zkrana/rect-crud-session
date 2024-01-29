@@ -1,16 +1,9 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 // Include config file
 require_once "../../db-connection/config.php";
 
 // Initialize the session
 session_start();
-
-// Debugging: Output session data
-echo "Session Data: ";
-var_dump($_SESSION);
 
 // Check if the user is logged in, if not then redirect him to the login page
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
@@ -18,20 +11,14 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     exit;
 }
 
-// Debugging: Output a message when the user is logged in
-echo "User is logged in. Continuing with the script.";
-
 // Check if product ID is provided in the URL
-if (!isset($_GET['up_id']) || empty($_GET['up_id'])) {
+if (!isset($_POST['productId']) || empty($_POST['productId'])) {
     header("location: ../../../files/products.php"); // Redirect to the products page if no ID is provided
     exit;
 }
 
-// Debugging: Output product ID
-echo "Product ID to update: " . $_GET['up_id'];
-
 // Fetch product details from the database based on the provided ID
-$productId = $_GET['up_id'];
+$productId = $_POST['productId'];
 $sql = "SELECT * FROM products WHERE id = :productId";
 $stmt = $connection->prepare($sql);
 $stmt->bindParam(":productId", $productId, PDO::PARAM_INT);
@@ -48,34 +35,8 @@ if ($stmt->execute()) {
     exit;
 }
 
-// Debugging: Output fetched product details
-echo "Fetched Product Details: ";
-var_dump($product);
-
-// Fetch categories from the database
-$sql = "SELECT * FROM categories";
-$stmt = $connection->query($sql);
-$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Function to get category name based on category ID
-function getCategoryName($categoryId) {
-    global $connection;
-    $sql = "SELECT name FROM categories WHERE id = :category_id";
-    $stmt = $connection->prepare($sql);
-    $stmt->bindParam(":category_id", $categoryId, PDO::PARAM_INT);
-    $stmt->execute();
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result ? $result['name'] : 'Unknown Category';
-}
-
-// Check if the form is submitted
+// Process form data only if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Process form data
-
-    // Debugging: Output submitted form data
-    echo "Submitted Form Data: ";
-    var_dump($_POST);
-
     // Retrieve form data
     $productName = $_POST["editProductName"];
     $productDescription = $_POST["editProductDescription"];
@@ -84,16 +45,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $categoryId = $_POST["editProductCategory"];
     $stockQuantity = $_POST["editProductStock"];
 
+    // Handle file upload for product photo
+    $newProductPhoto = $product['product_photo']; // Default to the existing photo
+    if ($_FILES['editProductPhoto']['error'] == 0) {
+        $targetDir = __DIR__ . "/../../assets/products/";
+        $targetFile = $targetDir . basename($_FILES['editProductPhoto']['name']);
+
+        // Check if the file exists in the temporary location
+        if (!file_exists($_FILES['editProductPhoto']['tmp_name']) || !is_uploaded_file($_FILES['editProductPhoto']['tmp_name'])) {
+            header("Location: ../../../files/products.php?error=File not received properly.");
+            exit;
+        }
+
+        // Check file size (adjust as needed)
+        if ($_FILES['editProductPhoto']['size'] > 500000) {
+            header("Location: ../../../files/products.php?error=File is too large.");
+            exit;
+        }
+
+        // Allow certain file formats (you can add more as needed)
+        $allowedFormats = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        if (!in_array($imageFileType, $allowedFormats)) {
+            header("Location: ../../../files/products.php?error=Invalid file format. Allowed formats: jpg, jpeg, png, gif");
+            exit;
+        }
+
+        // Delete the old image file
+        if (!empty($product['product_photo'])) {
+            $oldImagePath = $targetDir . $product['product_photo'];
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
+        }
+
+        // Move the uploaded file to the target directory
+        if (move_uploaded_file($_FILES['editProductPhoto']['tmp_name'], $targetFile)) {
+            $newProductPhoto = basename($_FILES['editProductPhoto']['name']);
+        } else {
+            header("Location: ../../../files/products.php?error=Error uploading file: Unable to move file.");
+            exit;
+        }
+    }
+
     // Validate and sanitize the data as needed
 
-    // Update the product in the database
+    // Update the product in the database, including the photo
     $sqlUpdate = "UPDATE products SET 
                     name = :productName,
                     description = :productDescription,
                     price = :productPrice,
                     currency_code = :currencyCode,
                     category_id = :categoryId,
-                    stock_quantity = :stockQuantity
+                    stock_quantity = :stockQuantity,
+                    product_photo = :newProductPhoto
                     WHERE id = :productId";
 
     $stmtUpdate = $connection->prepare($sqlUpdate);
@@ -103,10 +108,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmtUpdate->bindParam(":currencyCode", $currencyCode, PDO::PARAM_STR);
     $stmtUpdate->bindParam(":categoryId", $categoryId, PDO::PARAM_INT);
     $stmtUpdate->bindParam(":stockQuantity", $stockQuantity, PDO::PARAM_INT);
+    $stmtUpdate->bindParam(":newProductPhoto", $newProductPhoto, PDO::PARAM_STR);
     $stmtUpdate->bindParam(":productId", $productId, PDO::PARAM_INT);
-
-    // Debugging: Output SQL query
-    echo "SQL Query: " . $sqlUpdate;
 
     // Use transactions to ensure data consistency
     try {
@@ -120,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             // Product update failed
             $connection->rollBack();
-            header("Location: ../../../files/products.php?error=Oops! Something went wrong during product update. Please try again later.");
+            header("Location: ../../../files/products.php?error=Failed to update product. Please try again later.");
             exit;
         }
     } catch (Exception $e) {

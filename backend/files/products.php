@@ -125,8 +125,9 @@ function formatPriceWithIcon($price, $currencyCode) {
                     <div class="logo flex">
                         <img src="images/logo.webp" alt="logo">
                     </div>
-                    <div class="wrapper-n-icon">
+                    <div id="des-nav" class="wrapper-n-icon">
                         <i class="fa-solid fa-bars"></i>
+                        <i class="fa-solid fa-xmark close"></i>
                     </div>
                 </div>
                 <div class="sidebard-nav">
@@ -137,12 +138,14 @@ function formatPriceWithIcon($price, $currencyCode) {
                                 <span class="block">Dashboard</span>
                             </a>
                         </li>
+                        
                         <li class="">
                             <a href="categories.php">
-                               <i class="fa-solid fa-list"></i>
+                                <i class="fa-solid fa-list"></i>
                                 <span class="block">Categories</span>
                             </a>
                         </li>
+
                         <li class="active">
                             <a href="products.php">
                                <i class="fa-solid fa-cart-flatbed-suitcase"></i>
@@ -206,6 +209,11 @@ function formatPriceWithIcon($price, $currencyCode) {
                 </div>
             </div>
             <div class="header-body">
+                <div class="app-sidebar-mb">
+                    <div class="nav-mb-icon">
+                        <i class="fa-solid fa-bars"></i>
+                    </div>
+                </div>
                 <div class="user flex-end">
                     <div class="search">
                         <form class="d-flex gap-3" role="search">
@@ -287,9 +295,9 @@ function formatPriceWithIcon($price, $currencyCode) {
                             <?php
                                 // Check for success parameter in the URL
                                 if (isset($_GET["success"]) && $_GET["success"] == 1) {
-                                    echo "<div class='alert alert-success'>Product added successfully.</div>";
+                                    echo "<div id='error' class='alert alert-success'>Product added successfully.</div>";
                                 } elseif (isset($_GET["error"]) && $_GET["error"] == 1) {
-                                    echo "<div class='alert alert-danger'>Error adding product. Please try again.</div>";
+                                    echo "<div id='error' class='alert alert-danger'>Error adding product. Please try again.</div>";
                                 }
                             ?>
                             <div class="main-prodict-d-wrapper mt-4">
@@ -376,14 +384,16 @@ function formatPriceWithIcon($price, $currencyCode) {
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <form id="productForm" action="../auth/backend-assets/product/add_product.php" method="post" enctype="multipart/form-data">
+                                        <form id="productForm" action="../auth/backend-assets/product/add_product.php" method="post"
+                                            enctype="multipart/form-data">
                                             <div class="mb-3">
                                                 <label for="productName" class="form-label">Product Name</label>
                                                 <input type="text" class="form-control" id="productName" name="productName" required>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="productDescription" class="form-label">Product Description</label>
-                                                <input type="text" class="form-control" id="productDescription" name="productDescription" required>
+                                                <input type="text" class="form-control" id="productDescription" name="productDescription"
+                                                    required>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="productPrice" class="form-label">Product Price</label>
@@ -401,13 +411,12 @@ function formatPriceWithIcon($price, $currencyCode) {
                                                 </select>
                                             </div>
 
-
                                             <div class="mb-3">
                                                 <label for="productCategory" class="form-label">Product Category</label>
                                                 <!-- Display the product category dropdown -->
                                                 <select class="form-select" id="productCategory" name="productCategory" required>
                                                     <?php foreach ($categories as $category): ?>
-                                                        <option value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
+                                                    <option value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
@@ -417,16 +426,74 @@ function formatPriceWithIcon($price, $currencyCode) {
                                             </div>
                                             <div class="mb-3">
                                                 <label for="productPhoto" class="form-label">Product Photo</label>
-                                                <input type="file" class="form-control" id="productPhoto" name="productPhoto" accept="image/*" required>
+                                                <input type="file" class="form-control" id="productPhoto" name="productPhoto" accept="image/*"
+                                                    required>
                                             </div>
-                                            <button type="submit" class="btn btn-primary">Add Product</button>
+
+                                            <!-- Variation Option -->
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="addVariation" name="addVariation">
+                                                <label class="form-check-label" for="addVariation">Add Variation</label>
+                                            </div>
+
+                                            <!-- Variation Fields -->
+                                            <div id="variationFields" style="display: none;">
+
+                                            <!-- Sim Fields -->
+                                            <div id="simFields">
+                                                <div class="mb-3">
+                                                    <label for="sim" class="form-label">sim</label>
+                                                    <select id="sim" name="sim">
+                                                        <option value="dual">Dual</option>
+                                                        <option value="eSim">eSim</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <!-- Storage Fields -->
+                                            <div id="storageFields">
+                                                <div class="mb-3">
+                                                    <label for="storage" class="form-label">storage</label>
+                                                    <select id="storage" name="storage">
+                                                        <option value="128mb">128 MB</option>
+                                                        <option value="512mb">512 MB</option>
+                                                        <option value="1BG">1 BG</option>
+                                                        <option value="1TB">1 TB</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+
+                                                <!-- Color Fields -->
+                                                <div id="colorFields">
+                                                    <div class="mb-3">
+                                                        <label for="color" class="form-label">Color</label>
+                                                        <input type="text" class="form-control" name="color[]" required>
+                                                    </div>
+                                                </div>
+
+                                                <button type="button" class="btn btn-secondary mb-3" onclick="addColorField()">Add Color</button>
+
+                                                <!-- Image Fields -->
+                                                <div id="imageFields">
+                                                    <div class="mb-3">
+                                                        <label for="image" class="form-label">Image</label>
+                                                        <input type="file" class="form-control" name="image[]" accept="image/*" required>
+                                                    </div>
+                                                </div>
+
+                                                <button type="button" class="btn btn-secondary mt-3" onclick="addImageField()">Add Image</button>
+
+
+                                            </div>
+
+                                            <button type="submit" class="btn btn-primary mt-4">Add Product</button>
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -442,6 +509,41 @@ function formatPriceWithIcon($price, $currencyCode) {
             var options = document.getElementById("userOptions");
             options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
         }
+        document.addEventListener('DOMContentLoaded', function () {
+            const wrapperIcon = document.querySelector('.app-sidebar-mb');
+            const appWrapperS = document.querySelector('.app-wrapper');
+            const deskNav =  document.getElementById("des-nav");
+
+        wrapperIcon.addEventListener('click', function () {
+                appWrapperS.classList.toggle('show-sidebar');
+            });
+        deskNav.addEventListener('click', function () {
+                appWrapperS.classList.remove('show-sidebar');
+            });
+        });
+
+        // Variation Product
+
+      function addColorField() {
+        var colorFields = document.getElementById('colorFields');
+        var newColorField = document.createElement('div');
+        newColorField.innerHTML = '<div class="mb-3"><label for="color" class="form-label">Color</label>' +
+            '<input type="text" class="form-control" name="color[]" required></div>';
+        colorFields.appendChild(newColorField);
+    }
+
+    function addImageField() {
+        var imageFields = document.getElementById('imageFields');
+        var newImageField = document.createElement('div');
+        newImageField.innerHTML = '<div class="mb-3"><label for="image" class="form-label">Image</label>' +
+            '<input type="file" class="form-control" name="image[]" accept="image/*" required></div>';
+        imageFields.appendChild(newImageField);
+    }
+
+    document.getElementById('addVariation').addEventListener('change', function () {
+        var variationFields = document.getElementById('variationFields');
+        variationFields.style.display = this.checked ? 'block' : 'none';
+    });
     </script>
     <script src="js/main.js"></script>
 </body>

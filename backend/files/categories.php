@@ -40,7 +40,7 @@ if ($stmt = $connection->prepare($sql)) {
     <meta charset="UTF-8">
     <title>Welcome</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="../styling/style.css">
 </head>
 <body style="background:#f7f7f7;">
@@ -51,8 +51,9 @@ if ($stmt = $connection->prepare($sql)) {
                     <div class="logo flex">
                         <img src="images/logo.webp" alt="logo">
                     </div>
-                    <div class="wrapper-n-icon">
+                    <div id="des-nav" class="wrapper-n-icon">
                         <i class="fa-solid fa-bars"></i>
+                        <i class="fa-solid fa-xmark close"></i>
                     </div>
                 </div>
                 <div class="sidebard-nav">
@@ -63,12 +64,14 @@ if ($stmt = $connection->prepare($sql)) {
                                 <span class="block">Dashboard</span>
                             </a>
                         </li>
+                        
                         <li class="active">
                             <a href="categories.php">
-                               <i class="fa-solid fa-list"></i>
+                                <i class="fa-solid fa-list"></i>
                                 <span class="block">Categories</span>
                             </a>
                         </li>
+
                         <li>
                             <a href="products.php">
                                <i class="fa-solid fa-cart-flatbed-suitcase"></i>
@@ -132,6 +135,11 @@ if ($stmt = $connection->prepare($sql)) {
                 </div>
             </div>
             <div class="header-body">
+                <div class="app-sidebar-mb">
+                    <div class="nav-mb-icon">
+                        <i class="fa-solid fa-bars"></i>
+                    </div>
+                </div>
                 <div class="user flex-end">
                     <div class="search">
                         <form class="d-flex gap-3" role="search">
@@ -199,52 +207,96 @@ if ($stmt = $connection->prepare($sql)) {
                             }
                         ?>
 
-                        <?php
-                        // Fetch categories from the database
-                        $sql = "SELECT c.*, COUNT(p.id) AS product_count
-                                FROM categories c
-                                LEFT JOIN products p ON c.id = p.category_id
-                                GROUP BY c.id";
-                        $stmt = $connection->query($sql);
-                        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                        ?>
+<?php
+// Fetch categories from the database
+$sql = "SELECT c.id, c.name, c.category_description, COUNT(p.id) AS product_count,
+       c.created_at, c.updated_at,
+       COALESCE(parent.parent_category_id, 0) AS parent_category_id,
+       COALESCE(parent.level, 0) AS level
+FROM categories c
+LEFT JOIN products p ON c.id = p.category_id
+LEFT JOIN (
+    SELECT id, COALESCE(parent_category_id, 0) AS parent_category_id, 0 AS level
+    FROM categories
+    WHERE parent_category_id IS NULL
+    UNION ALL
+    SELECT c.id, c.parent_category_id, parent.level + 1
+    FROM categories c
+    JOIN categories parent ON c.parent_category_id = parent.id
+) parent ON c.id = parent.id
+GROUP BY c.id";
 
-                        <!-- Existing Categories -->
-                        <div class="existing-cat mt-5">
-                            <h2>Existing Categories</h2>
-                            <table class="table table-striped mt-3">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Category Name</th>
-                                        <th scope="col">Description</th>
-                                        <th scope="col">Product Count</th>
-                                        <th scope="col">Created At</th>
-                                        <th scope="col">Updated At</th>
-                                        <th scope="col">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php 
-                                        $counter = 1; // Initialize a counter variable
-                                        foreach ($categories as $category): 
-                                    ?>
-                                        <tr>
-                                            <th scope="row"><?php echo $counter++; ?></th>
-                                            <td><?php echo $category['name']; ?></td>
-                                            <td><?php echo $category['category_description']; ?></td>
-                                            <td><?php echo $category['product_count']; ?></td>
-                                            <td><?php echo $category['created_at']; ?></td>
-                                            <td><?php echo $category['updated_at']; ?></td>
-                                            <td>
-                                                <a class="btn btn-primary" href="category_edit.php?up_id=<?php echo $category['id']; ?>">Edit</a> | 
-                                                <a class="btn btn-danger" href="../auth/backend-assets/category/category_delete.php?del_id=<?php echo $category['id']; ?>">Delete</a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
+try {
+    $stmt = $connection->query($sql);
+    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    echo "Error fetching categories: " . $e->getMessage();
+    exit; // Stop execution if there is an error
+}
+
+?>
+
+<div class="existing-cat mt-5">
+    <h2>Existing Categories</h2>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Category Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Product Count</th>
+                <th scope="col">Created At</th>
+                <th scope="col">Updated At</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            // Function to display categories with icons
+            function displayCategories($categories, $parentId = null)
+            {
+                foreach ($categories as $category) {
+                    if ($category['parent_category_id'] == $parentId) {
+                        echo '<tr class="level-' . $category['level'] . '">';
+                        echo '<th scope="row">' . $category['id'] . '</th>';
+                        echo '<td class="level-' . $category['level'] . '">';
+                        
+                        // Add a caret icon for sub-categories
+                        if ($category['level'] > 0) {
+                            echo '&#x21AA;';
+                        }
+
+                        echo str_repeat('&nbsp;&nbsp;&nbsp;', $category['level']) . htmlspecialchars($category['name']) . '</td>';
+                        echo '<td>' . htmlspecialchars($category['category_description']) . '</td>';
+                        echo '<td>' . $category['product_count'] . '</td>';
+                        echo '<td>' . htmlspecialchars($category['created_at']) . '</td>';
+                        echo '<td>' . htmlspecialchars($category['updated_at']) . '</td>';
+                        echo '<td>';
+                        echo '<a class="btn btn-primary" href="category_edit.php?up_id=' . $category['id'] . '">Edit</a> | ';
+                        echo '<a class="btn btn-danger" href="../auth/backend-assets/category/category_delete.php?del_id=' . $category['id'] . '">Delete</a>';
+                        echo '</td>';
+                        echo '</tr>';
+
+                        // Recursively display child categories
+                        displayCategories($categories, $category['id']);
+                    }
+                }
+            }
+
+            // Call the function to display categories, starting from the root (parent_category_id is NULL)
+            if (!empty($categories)) {
+                displayCategories($categories, null);
+            } else {
+                echo "<tr><td colspan='7'>No categories found</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
+
+
+
+
 
                         <!-- Modal -->
                         <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
@@ -255,7 +307,6 @@ if ($stmt = $connection->prepare($sql)) {
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <!-- Your form goes here -->
                                         <form id="categoryForm" action="../auth/backend-assets/category/add_category.php" method="post">
                                             <div class="mb-3">
                                                 <label for="categoryName" class="form-label">Category Name</label>
@@ -265,8 +316,26 @@ if ($stmt = $connection->prepare($sql)) {
                                                 <label for="categoryDescription" class="form-label">Category Description</label>
                                                 <input type="text" class="form-control" id="categoryDescription" name="categoryDescription">
                                             </div>
+                                            <div class="mb-3">
+                                                <label for="parentCategory" class="form-label">Parent Category</label>
+                                                <select class="form-select" id="parentCategory" name="parentCategory">
+                                                    <option value="" selected>No Parent Category</option>
+                                                    <?php
+                                                    // Fetch all categories to populate the dropdown
+                                                    $sql = "SELECT id, name FROM categories";
+                                                    $stmt = $connection->prepare($sql);
+                                                    $stmt->execute();
+                                                    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                                    foreach ($categories as $category) {
+                                                        echo "<option value=\"{$category['id']}\">{$category['name']}</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
                                             <button type="submit" class="btn btn-primary">Add Category</button>
                                         </form>
+
                                     </div>
                                 </div>
                             </div>
@@ -286,6 +355,18 @@ if ($stmt = $connection->prepare($sql)) {
             var options = document.getElementById("userOptions");
             options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
         }
+                document.addEventListener('DOMContentLoaded', function () {
+            const wrapperIcon = document.querySelector('.app-sidebar-mb');
+            const appWrapperS = document.querySelector('.app-wrapper');
+            const deskNav =  document.getElementById("des-nav");
+
+        wrapperIcon.addEventListener('click', function () {
+                appWrapperS.classList.toggle('show-sidebar');
+            });
+        deskNav.addEventListener('click', function () {
+                appWrapperS.classList.remove('show-sidebar');
+            });
+        });
     </script>
     <script src="js/main.js"></script>
 </body>
