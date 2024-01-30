@@ -33,6 +33,24 @@ $productId = $_GET['del_id'];
 // Debugging: Output product ID
 echo "Product ID to delete: " . $productId;
 
+// Fetch product details from the database based on the provided ID
+$sqlGetProduct = "SELECT * FROM products WHERE id = :productId";
+$stmtGetProduct = $connection->prepare($sqlGetProduct);
+$stmtGetProduct->bindParam(":productId", $productId, PDO::PARAM_INT);
+
+if ($stmtGetProduct->execute()) {
+    $product = $stmtGetProduct->fetch(PDO::FETCH_ASSOC);
+    if (!$product) {
+        // Redirect to the products page if the product is not found
+        header("location: ../../../files/products.php?error=Product not found for deletion.");
+        exit;
+    }
+} else {
+    // Redirect with an error message if there's an issue fetching product details
+    header("location: ../../../files/products.php?error=Oops! Something went wrong fetching product details. Please try again later.");
+    exit;
+}
+
 // Delete variations associated with the product
 $sqlDeleteVariations = "DELETE FROM variations WHERE product_id = :productId";
 $stmtDeleteVariations = $connection->prepare($sqlDeleteVariations);
@@ -40,8 +58,8 @@ $stmtDeleteVariations->bindParam(":productId", $productId, PDO::PARAM_INT);
 
 // Prepare the statement for deleting the product
 $sqlDeleteProduct = "DELETE FROM products WHERE id = :productId";
-$stmtDelete = $connection->prepare($sqlDeleteProduct);
-$stmtDelete->bindParam(":productId", $productId, PDO::PARAM_INT);
+$stmtDeleteProduct = $connection->prepare($sqlDeleteProduct);
+$stmtDeleteProduct->bindParam(":productId", $productId, PDO::PARAM_INT);
 
 try {
     $connection->beginTransaction();
@@ -49,8 +67,25 @@ try {
     // Delete variations first
     if ($stmtDeleteVariations->execute()) {
         // After variations are deleted, delete the product
-        if ($stmtDelete->execute()) {
+        if ($stmtDeleteProduct->execute()) {
             // Product deleted successfully
+
+            // Delete product photo file
+            $targetDir = __DIR__ . "/../../assets/products/";
+            $productPhotoPath = $targetDir . $product['product_photo'];
+
+            if (!empty($product['product_photo']) && file_exists($productPhotoPath)) {
+                unlink($productPhotoPath);
+            }
+
+            // Delete product folder
+            $productFolderPath = $targetDir . $productId;
+
+            if (is_dir($productFolderPath)) {
+                // Recursively remove the product folder and its contents
+                rrmdir($productFolderPath);
+            }
+
             $connection->commit();
             header("Location: ../../../files/products.php?success=Product deleted successfully.");
             exit;
@@ -75,5 +110,23 @@ try {
 
     header("Location: ../../../files/products.php?error=Error: " . $e->getMessage());
     exit;
+}
+
+// Helper function to recursively remove a directory and its contents
+function rrmdir($dir) {
+    if (is_dir($dir)) {
+        $objects = scandir($dir);
+        foreach ($objects as $object) {
+            if ($object != "." && $object != "..") {
+                if (filetype($dir . "/" . $object) == "dir") {
+                    rrmdir($dir . "/" . $object);
+                } else {
+                    unlink($dir . "/" . $object);
+                }
+            }
+        }
+        reset($objects);
+        rmdir($dir);
+    }
 }
 ?>

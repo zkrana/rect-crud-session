@@ -52,15 +52,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->execute()) {
             $productId = $connection->lastInsertId();
 
-            // Create a folder based on product ID
+            // Create the product folder based on product ID
             $productFolder = "../../assets/products/" . $productId . "/";
+            echo "Product Folder: $productFolder\n"; // Log product folder path
+
             if (!file_exists($productFolder)) {
-                mkdir($productFolder);
+                mkdir($productFolder, 0777, true);  // Recursive directory creation
             }
 
             // Move the main image to the product folder
             $mainImage = $productFolder . basename($productPhoto);
-            move_uploaded_file($_FILES["productPhoto"]["tmp_name"], $mainImage);
+            echo "Main Image Path: $mainImage\n"; // Log main image path
+            $isMainImageMoved = move_uploaded_file($_FILES["productPhoto"]["tmp_name"], $mainImage);
+
+            if (!$isMainImageMoved) {
+                echo "Failed to move the main image\n";
+                echo "Upload error: " . $_FILES["productPhoto"]["error"] . "\n";
+            }
 
             // Handle variations if the user checks for variation
             if (isset($_POST["addVariation"])) {
@@ -85,14 +93,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     // Handle database insertion for variations
                     $sqlVariation = "INSERT INTO variations (product_id, sim, storage, color, image_path) 
-                                    VALUES (:product_id, NULLIF(:sim, '1'), NULLIF(:storage, 'd'), :color, :image_path)";
+                                    VALUES (:product_id, :sim, :storage, :color, :image_path)";
                     $stmtVariation = $connection->prepare($sqlVariation);
                     $stmtVariation->bindParam(":product_id", $productId, PDO::PARAM_INT);
-                    $simValue = $simValues[$i] ?? null;
-                    $storageValue = $storageValues[$i] ?? null;
+                    $simValue = isset($simValues[$i]) && $simValues[$i] !== '' ? $simValues[$i] : null;
+                    $storageValue = isset($storageValues[$i]) && $storageValues[$i] !== '' ? $storageValues[$i] : null;
                     $colorValue = $colorValues[$i] ?? null;
                     $imagePathValue = $variationImage;
 
+                    // Check if user selected the "Select" option and set to null in that case
+                    if ($simValue === '' || $simValue === 'Select') {
+                        $simValue = null;
+                    }
+
+                    if ($storageValue === '' || $storageValue === 'Select') {
+                        $storageValue = null;
+                    }
+
+                    // Bind parameters
                     $stmtVariation->bindParam(":sim", $simValue, PDO::PARAM_STR);
                     $stmtVariation->bindParam(":storage", $storageValue, PDO::PARAM_STR);
                     $stmtVariation->bindParam(":color", $colorValue, PDO::PARAM_STR);
@@ -104,11 +122,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             // Redirect back to the page where products are displayed with success message
-            header("location: ../../../files/products.php?success=Product added successfully.");
+            $successMessage = "Product added successfully.";
+            if ($isMainImageMoved) {
+                $successMessage .= " Main Image Moved: Yes";
+                $successMessage .= " Product Folder: $productFolder";
+            } else {
+                $successMessage .= " Main Image Moved: No";
+            }
+            header("location: ../../../files/products.php?success=" . urlencode($successMessage));
             exit;
+
         } else {
             // Handle the error (you might want to display an error message)
-            header("location: ../../../files/products.php?error=Error adding product: " . implode(" ", $stmt->errorInfo()));
+            $errorMessage = "Error adding product: " . implode(" ", $stmt->errorInfo());
+            $errorMessage .= " Product Folder: $productFolder";
+            header("location: ../../../files/products.php?error=" . urlencode($errorMessage));
             exit;
         }
     } else {

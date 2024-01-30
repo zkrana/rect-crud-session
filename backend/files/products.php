@@ -113,6 +113,9 @@ function formatPriceWithIcon($price, $currencyCode) {
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="../styling/style.css">
@@ -193,7 +196,7 @@ function formatPriceWithIcon($price, $currencyCode) {
                         </li>
 
                          <li class="devided-nav">
-                            <a href="">
+                            <a href="appearance.php">
                                 <i class="fa-solid fa-tag"></i>
                                 <span class="block">Appearances</span>
                             </a>
@@ -439,53 +442,56 @@ function formatPriceWithIcon($price, $currencyCode) {
                                             <!-- Variation Fields -->
                                             <div id="variationFields" style="display: none;">
 
-                                            <!-- Sim Fields -->
-                                            <div id="simFields">
-                                                <div class="mb-3">
-                                                    <label for="sim" class="form-label">sim</label>
-                                                    <select id="sim" name="sim">
-                                                        <option value="dual">Dual</option>
-                                                        <option value="eSim">eSim</option>
-                                                    </select>
+                                                <!-- Sim Fields -->
+                                                <div id="simFields">
+                                                    <div class="mb-3">
+                                                        <label for="sim" class="form-label">sim</label>
+                                                        <select id="sim" name="sim[]">
+                                                            <option value="">Select</option>
+                                                            <option value="dual">Dual</option>
+                                                            <option value="eSim">eSim</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <!-- Storage Fields -->
-                                            <div id="storageFields">
-                                                <div class="mb-3">
-                                                    <label for="storage" class="form-label">storage</label>
-                                                    <select id="storage" name="storage">
-                                                        <option value="128mb">128 MB</option>
-                                                        <option value="512mb">512 MB</option>
-                                                        <option value="1BG">1 BG</option>
-                                                        <option value="1TB">1 TB</option>
-                                                    </select>
+                                                <!-- Storage Fields -->
+                                                <div id="storageFields">
+                                                    <div class="mb-3">
+                                                        <label for="storage" class="form-label">storage</label>
+                                                        <select id="storage" name="storage[]">
+                                                            <option value="">Select</option>
+                                                            <option value="128mb">128 MB</option>
+                                                            <option value="512mb">512 MB</option>
+                                                            <option value="1BG">1 BG</option>
+                                                            <option value="1TB">1 TB</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                            </div>
-
 
                                                 <!-- Color Fields -->
                                                 <div id="colorFields">
                                                     <div class="mb-3">
                                                         <label for="color" class="form-label">Color</label>
-                                                        <input type="text" class="form-control" name="color[]" required>
+                                                        <input type="text" class="form-control" name="color[]">
                                                     </div>
                                                 </div>
-
-                                                <button type="button" class="btn btn-secondary mb-3" onclick="addColorField()">Add Color</button>
 
                                                 <!-- Image Fields -->
                                                 <div id="imageFields">
                                                     <div class="mb-3">
                                                         <label for="image" class="form-label">Image</label>
-                                                        <input type="file" class="form-control" name="image[]" accept="image/*" required>
+                                                        <input type="file" class="form-control" name="image[]" accept="image/*">
                                                     </div>
                                                 </div>
 
-                                                <button type="button" class="btn btn-secondary mt-3" onclick="addImageField()">Add Image</button>
+                                                <!-- Add Color Button -->
+                                                <button type="button" class="btn btn-secondary mt-3" id="addColorBtn" onclick="addColorField()">Add Color</button>
 
+                                                <!-- Add Image Button -->
+                                                <button type="button" class="btn btn-secondary mt-3" id="addImageBtn" onclick="addImageField()">Add Image</button>
 
                                             </div>
+
 
                                             <button type="submit" class="btn btn-primary mt-4">Add Product</button>
                                         </form>
@@ -504,47 +510,69 @@ function formatPriceWithIcon($price, $currencyCode) {
     <!-- Bootstrap JS (you can use the CDN or download the file and host it locally) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        function toggleUserOptions() {
-            var options = document.getElementById("userOptions");
-            options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
-        }
-        document.addEventListener('DOMContentLoaded', function () {
-            const wrapperIcon = document.querySelector('.app-sidebar-mb');
-            const appWrapperS = document.querySelector('.app-wrapper');
-            const deskNav =  document.getElementById("des-nav");
+    <script src="js/main.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const wrapperIcon = document.querySelector('.app-sidebar-mb');
+        const appWrapperS = document.querySelector('.app-wrapper');
+        const deskNav = document.getElementById("des-nav");
 
         wrapperIcon.addEventListener('click', function () {
-                appWrapperS.classList.toggle('show-sidebar');
-            });
+            appWrapperS.classList.toggle('show-sidebar');
+        });
+
         deskNav.addEventListener('click', function () {
-                appWrapperS.classList.remove('show-sidebar');
-            });
+            appWrapperS.classList.remove('show-sidebar');
         });
 
         // Variation Product
-
-      function addColorField() {
-        var colorFields = document.getElementById('colorFields');
-        var newColorField = document.createElement('div');
-        newColorField.innerHTML = '<div class="mb-3"><label for="color" class="form-label">Color</label>' +
-            '<input type="text" class="form-control" name="color[]" required></div>';
-        colorFields.appendChild(newColorField);
-    }
-
-    function addImageField() {
-        var imageFields = document.getElementById('imageFields');
-        var newImageField = document.createElement('div');
-        newImageField.innerHTML = '<div class="mb-3"><label for="image" class="form-label">Image</label>' +
-            '<input type="file" class="form-control" name="image[]" accept="image/*" required></div>';
-        imageFields.appendChild(newImageField);
-    }
-
-    document.getElementById('addVariation').addEventListener('change', function () {
+        var addVariationCheckbox = document.getElementById('addVariation');
         var variationFields = document.getElementById('variationFields');
-        variationFields.style.display = this.checked ? 'block' : 'none';
+
+        // Initial check for variation checkbox
+        toggleVariationFields(addVariationCheckbox.checked);
+
+        // Add event listener for variation checkbox change
+        addVariationCheckbox.addEventListener('change', function () {
+            toggleVariationFields(this.checked);
+        });
+
+        function toggleVariationFields(isChecked) {
+            variationFields.style.display = isChecked ? 'block' : 'none';
+
+            // Call additional functions if needed
+            if (isChecked) {
+                // Add any additional functionality when variation is checked
+            } else {
+                // Add any additional functionality when variation is not checked
+            }
+        }
+
+        function addColorField() {
+            var colorFields = document.getElementById('colorFields');
+            var newColorField = document.createElement('div');
+            newColorField.innerHTML = '<div class="mb-3"><label for="color" class="form-label">Color</label>' +
+                '<input type="text" class="form-control" name="color[]"></div>';
+            colorFields.appendChild(newColorField);
+        }
+
+        function addImageField() {
+            var imageFields = document.getElementById('imageFields');
+            var newImageField = document.createElement('div');
+            newImageField.innerHTML = '<div class="mb-3"><label for="image" class="form-label">Image</label>' +
+                '<input type="file" class="form-control" name="image[]" accept="image/*"></div>';
+            imageFields.appendChild(newImageField);
+        }
+
+        // Event listeners for adding color and image fields
+        document.getElementById('addColorBtn').addEventListener('click', addColorField);
+        document.getElementById('addImageBtn').addEventListener('click', addImageField);
     });
-    </script>
-    <script src="js/main.js"></script>
+</script>
+
+
+
+
 </body>
 </html>

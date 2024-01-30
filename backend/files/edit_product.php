@@ -57,6 +57,19 @@ function formatPrice($price, $currencyCode) {
     return $currencyCode . ' ' . number_format($price, 2);
 }
 
+// Fetch existing variations for the product
+$sql = "SELECT * FROM variations WHERE product_id = :productId";
+$stmt = $connection->prepare($sql);
+$stmt->bindParam(":productId", $productId, PDO::PARAM_INT);
+
+if ($stmt->execute()) {
+    $existingVariations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    echo "Oops! Something went wrong while fetching variations. Please try again later.";
+    exit;
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -64,6 +77,9 @@ function formatPrice($price, $currencyCode) {
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="../styling/style.css">
@@ -144,7 +160,7 @@ function formatPrice($price, $currencyCode) {
                         </li>
 
                          <li class="devided-nav">
-                            <a href="">
+                            <a href="appearance.php">
                                 <i class="fa-solid fa-tag"></i>
                                 <span class="block">Appearances</span>
                             </a>
@@ -225,46 +241,47 @@ function formatPrice($price, $currencyCode) {
                     </div>
 
                     <!-- Display the product form for editing -->
-                        <form id="editProductForm" action="../auth/backend-assets/product/update_product.php" method="post" enctype="multipart/form-data">
+                    <form id="editProductForm" action="../auth/backend-assets/product/update_product.php" method="post" enctype="multipart/form-data">
 
                         <!-- Hidden field for product ID -->
                         <input type="hidden" name="productId" value="<?php echo htmlspecialchars($product['id'] ?? ''); ?>">
 
                         <!-- Product Name -->
-                        <div class="mb-3">
-                            <label for="editProductName" class="form-label">Product Name</label>
+                        <div class="form-group">
+                            <label for="editProductName">Product Name:</label>
                             <input type="text" class="form-control" id="editProductName" name="editProductName" value="<?php echo htmlspecialchars($product['name'] ?? ''); ?>" required>
                         </div>
 
                         <!-- Product Description -->
-                        <div class="mb-3">
-                            <label for="editProductDescription" class="form-label">Product Description</label>
+                        <div class="form-group">
+                            <label for="editProductDescription">Product Description:</label>
                             <input type="text" class="form-control" id="editProductDescription" name="editProductDescription" value="<?php echo htmlspecialchars($product['description'] ?? ''); ?>" required>
                         </div>
 
                         <!-- Product Price -->
-                        <div class="mb-3">
-                            <label for="editProductPrice" class="form-label">Product Price</label>
+                        <div class="form-group">
+                            <label for="editProductPrice">Product Price:</label>
                             <div class="input-group">
-                                <span id="editCurrencySymbol" class="input-group-text"></span>
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
                                 <input type="text" class="form-control" id="editProductPrice" name="editProductPrice" value="<?php echo htmlspecialchars($product['price'] ?? ''); ?>" required>
                             </div>
                         </div>
 
                         <!-- Currency -->
-                        <div class="mb-3">
-                            <label for="editCurrency" class="form-label">Currency</label>
-                            <select class="form-select" id="editCurrency" name="editProductCurrency" required>
-                                <!-- Add currency options as needed -->
+                        <div class="form-group">
+                            <label for="editCurrency">Currency:</label>
+                            <select class="form-control" id="editCurrency" name="editProductCurrency" required>
                                 <option value="BDT" <?php echo ($product['currency_code'] == 'BDT') ? 'selected' : ''; ?>>BDT (Bangladeshi Taka)</option>
                                 <option value="USD" <?php echo ($product['currency_code'] == 'USD') ? 'selected' : ''; ?>>USD (United States Dollar)</option>
                             </select>
                         </div>
 
                         <!-- Product Category -->
-                        <div class="mb-3">
-                            <label for="editProductCategory" class="form-label">Product Category</label>
-                            <select class="form-select" id="editProductCategory" name="editProductCategory" required>
+                        <div class="form-group">
+                            <label for="editProductCategory">Product Category:</label>
+                            <select class="form-control" id="editProductCategory" name="editProductCategory" required>
                                 <?php foreach ($categories as $category): ?>
                                     <option value="<?php echo $category['id']; ?>" <?php echo ($product['category_id'] == $category['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($category['name']); ?></option>
                                 <?php endforeach; ?>
@@ -272,37 +289,120 @@ function formatPrice($price, $currencyCode) {
                         </div>
 
                         <!-- Stock Quantity -->
-                        <div class="mb-3">
-                            <label for="editProductStock" class="form-label">Stock Quantity</label>
+                        <div class="form-group">
+                            <label for="editProductStock">Stock Quantity:</label>
                             <input type="text" class="form-control" id="editProductStock" name="editProductStock" value="<?php echo htmlspecialchars($product['stock_quantity'] ?? ''); ?>" required>
                         </div>
 
                         <!-- Product Photo -->
-                        <div class="mb-3">
-                            <label for="editProductPhoto" class="form-label">Product Photo</label>
-                            <input type="file" class="form-control" id="editProductPhoto" name="editProductPhoto" accept="image/*">
+                        <div class="form-group">
+                            <label for="editProductPhoto">Product Photo:</label>
+                            <input type="file" class="form-control-file" id="editProductPhoto" name="editProductPhoto" accept="image/*">
+                        </div>
+
+                        <!-- Variations Section -->
+                        <hr class="my-4">
+                        <h3>Variations</h3>
+
+                        <!-- Fetch existing variations for the product -->
+                        <?php if (!empty($existingVariations)): ?>
+                            <div class="mb-4">
+                                <h4>Existing Variations</h4>
+                                <ul class="list-group">
+                                    <?php foreach ($existingVariations as $variation): ?>
+                                        <li class="list-group-item">
+                                            Variation ID: <?php echo $variation['id']; ?>
+                                            - Sim: <?php echo htmlspecialchars($variation['sim']); ?>
+                                            - Storage: <?php echo htmlspecialchars($variation['storage']); ?>
+                                            - Color(s): <?php echo htmlspecialchars($variation['color']); ?>
+                                            - Image Path(s): <?php echo htmlspecialchars($variation['image_path']); ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Allow user to input new variations -->
+                        <div class="variation-form">
+                            <h4>New Variation</h4>
+
+                            <div class="form-group">
+                                <label for="sim">Sim:</label>
+                                <input type="text" class="form-control" name="sim[]">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="storage">Storage:</label>
+                                <input type="text" class="form-control" name="storage[]">
+                            </div>
+
+                            <!-- Color Fields -->
+                            <div class="color-fields">
+                                <label for="colors">Color(s):</label>
+                                <input type="text" class="form-control" name="colors[0][]">
+                            </div>
+
+                            <!-- Image Fields -->
+                            <div class="image-fields">
+                                <label for="images">Image Path(s):</label>
+                                <input type="text" class="form-control" name="images[0][]">
+                            </div>
+
+                            <button type="button" class="btn btn-primary mt-3" onclick="addColorAndImageFields()">
+                            Add Multiple Color and Image</button>
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary">Update Product</button>
+                        <button type="submit" class="btn btn-primary mt-5">Update Product</button>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
 </main>
 
-    <!-- Bootstrap JS (you can use the CDN or download the file and host it locally) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-rqzjrxH3CSuZ5Ff2LPz1Lh8Qf5OUd9lZAe73FN19SYBWy4MEEI2Ml4hj8Iva5Q8" crossorigin="anonymous"></script>
+<!-- Bootstrap JS (load Bootstrap 5 first) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-rqzjrxH3CSuZ5Ff2LPz1Lh8Qf5OUd9lZAe73FN19SYBWy4MEEI2Ml4hj8Iva5Q8" crossorigin="anonymous"></script>
 
-    <script>
-        function toggleUserOptions() {
-            var options = document.getElementById("userOptions");
-            options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
+<!-- jQuery (load jQuery before Bootstrap 4) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBn" crossorigin="anonymous"></script>
+
+<!-- Bootstrap 4 -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-oj2zXrMpOq2mgXXsL0l5f1d0gfn5vi3e5P9GoaF2f7Q/cAsqNquCDZg2VYNJfjlz" crossorigin="anonymous"></script>
+
+<!-- Your custom JavaScript -->
+<script>
+function addColorAndImageFields() {
+        var colorFields = document.querySelector('.color-fields');
+        var newColorField = document.createElement('div');
+        newColorField.innerHTML = '<label for="colors">Color(s):</label>' +
+            '<input type="text" class="form-control" name="colors[0][]">';
+        colorFields.appendChild(newColorField);
+
+        var imageFields = document.querySelector('.image-fields');
+        var newImageField = document.createElement('div');
+        newImageField.innerHTML = '<label for="images">Image Path(s):</label>' +
+            '<input type="text" class="form-control" name="images[0][]">';
+        imageFields.appendChild(newImageField);
+    }
+
+    // Add an event listener to the form to submit it when any field is edited
+    document.getElementById('editProductForm').addEventListener('input', function () {
+        // Set a flag to indicate that the form has been edited
+        this.dataset.edited = true;
+    });
+
+    // Override the form submission to check if it's edited before submitting
+    document.getElementById('editProductForm').addEventListener('submit', function (event) {
+        // If the form is not edited, prevent submission
+        if (!this.dataset.edited) {
+            alert('Please edit at least one field before submitting.');
+            event.preventDefault();
         }
+    });
 
-  function toggleUserOptions() {
+
+    function toggleUserOptions() {
         var options = document.getElementById("userOptions");
         options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
     }
@@ -337,19 +437,19 @@ function formatPrice($price, $currencyCode) {
     // Call the function initially to set the default currency symbol
     updateCurrencySymbol();
 
-            document.addEventListener('DOMContentLoaded', function () {
-            const wrapperIcon = document.querySelector('.app-sidebar-mb');
-            const appWrapperS = document.querySelector('.app-wrapper');
-            const deskNav =  document.getElementById("des-nav");
+    document.addEventListener('DOMContentLoaded', function () {
+        const wrapperIcon = document.querySelector('.app-sidebar-mb');
+        const appWrapperS = document.querySelector('.app-wrapper');
+        const deskNav = document.getElementById("des-nav");
 
         wrapperIcon.addEventListener('click', function () {
-                appWrapperS.classList.toggle('show-sidebar');
-            });
-        deskNav.addEventListener('click', function () {
-                appWrapperS.classList.remove('show-sidebar');
-            });
+            appWrapperS.classList.toggle('show-sidebar');
         });
-    </script>
-    <!-- <script src="js/main.js"></script> -->
+        deskNav.addEventListener('click', function () {
+            appWrapperS.classList.remove('show-sidebar');
+        });
+    });
+</script>
+
 </body>
 </html>

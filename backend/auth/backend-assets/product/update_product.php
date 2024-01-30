@@ -37,7 +37,7 @@ if ($stmt->execute()) {
 
 // Process form data only if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieve form data
+    // Retrieve form data for the product
     $productName = $_POST["editProductName"];
     $productDescription = $_POST["editProductDescription"];
     $productPrice = $_POST["editProductPrice"];
@@ -117,8 +117,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($stmtUpdate->execute()) {
             // Product updated successfully
+
+            // Handle variations
+            $variations = [];
+            $simArray = $_POST['sim'] ?? [];
+            $storageArray = $_POST['storage'] ?? [];
+            $colorsArray = $_POST['colors'] ?? [];
+            $imagesArray = $_POST['images'] ?? [];
+
+            // Iterate over the variation arrays to construct the $variations array
+            foreach ($simArray as $key => $sim) {
+                $storage = $storageArray[$key] ?? '';
+                $colors = $colorsArray[$key] ?? [];
+                $images = $imagesArray[$key] ?? [];
+
+                // Create an associative array for each variation
+                $variation = [
+                    'sim' => $sim,
+                    'storage' => $storage,
+                    'colors' => $colors,
+                    'images' => $images,
+                ];
+
+                // Add the variation to the $variations array
+                $variations[] = $variation;
+            }
+
+            // Now, $variations is an array containing all the variations data
+
+            // Update variations in the database
+            $sqlUpdateVariations = "UPDATE variations SET 
+                                        sim = :sim,
+                                        storage = :storage,
+                                        color = :color,
+                                        image_path = :image_path
+                                        WHERE product_id = :productId AND id = :variationId";
+
+            $stmtUpdateVariations = $connection->prepare($sqlUpdateVariations);
+
+            // Iterate over variations and update each one
+            foreach ($variations as $key => $variation) {
+                $sim = $variation['sim'];
+                $storage = $variation['storage'];
+                $colors = implode(',', $variation['colors']);
+                $images = implode(',', $variation['images']);
+                $variationId = $key + 1; // Adjust this based on how your variation IDs are structured
+
+                $stmtUpdateVariations->bindParam(":sim", $sim, PDO::PARAM_STR);
+                $stmtUpdateVariations->bindParam(":storage", $storage, PDO::PARAM_STR);
+                $stmtUpdateVariations->bindParam(":color", $colors, PDO::PARAM_STR);
+                $stmtUpdateVariations->bindParam(":image_path", $images, PDO::PARAM_STR);
+                $stmtUpdateVariations->bindParam(":productId", $productId, PDO::PARAM_INT);
+                $stmtUpdateVariations->bindParam(":variationId", $variationId, PDO::PARAM_INT);
+
+                // Execute the update query for each variation
+                $stmtUpdateVariations->execute();
+            }
+
+            // Commit the transaction
             $connection->commit();
-            header("Location: ../../../files/products.php?success=Product updated successfully.");
+
+            // Redirect or output success message as needed
+            header("Location: ../../../files/products.php?success=Product and variations updated successfully.");
             exit;
         } else {
             // Product update failed

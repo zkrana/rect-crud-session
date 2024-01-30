@@ -32,32 +32,6 @@ if ($stmt = $connection->prepare($sql)) {
 
     unset($stmt); // Close statement
 }
-
-
-// Edit Category
-require_once "../auth/db-connection/config.php";
-
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
-    $category_id = $_GET['up_id'];
-
-    // Fetch category details based on the ID
-    $sql = "SELECT * FROM categories WHERE id = :category_id";
-    $stmt = $connection->prepare($sql);
-    $stmt->bindParam(":category_id", $category_id, PDO::PARAM_INT);
-    $stmt->execute();
-    $category = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$category) {
-        // Redirect or show an error message if the category is not found
-        header("Location: category_list.php");
-        exit();
-    }
-} else {
-    // Redirect or show an error message if 'up_id' is not set
-    header("Location: category_list.php");
-    exit();
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -94,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
                             </a>
                         </li>
                         
-                        <li class="active">
+                        <li class="">
                             <a href="categories.php">
                                 <i class="fa-solid fa-list"></i>
                                 <span class="block">Categories</span>
@@ -147,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
                             </a>
                         </li>
 
-                         <li class="devided-nav">
+                         <li class="devided-nav active">
                             <a href="appearance.php">
                                 <i class="fa-solid fa-tag"></i>
                                 <span class="block">Appearances</span>
@@ -221,75 +195,116 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
                         </div>
                     </div>
                 </div>
-
                 <div class="h-container">
                     <div class="main">
-                        <div class="flex">
-                            <h1 class="page-heading">Edit Categories </h1>
-                           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Add Category</button>
+                        <h1 class="page-heading"> Appearance </h1>
+                        <p>
+                            All fornt-end and back-end appearance setting are in here.
+                        </p>
+
+                        <div class="message max-width-400px">
+                            <?php
+                            // Check for success query parameter
+                            if (isset($_GET['success'])) {
+                                $successMsg = $_GET['success'];
+                                echo '<div id="error" class="max-w-400px alert alert-success mt-2" role="alert">' . $successMsg . '</div>';
+                            }
+
+                            // Display error message if available
+                            if (isset($_GET['error'])) {
+                                $errorMsg = $_GET['error']; // You should set an appropriate error message here
+                                echo '<div class="alert alert-danger" role="alert">' . $errorMsg . '</div>';
+                            }
+                        ?>
                         </div>
 
-                        <!-- Existing Categories -->
-                        <div class="mt-5">
-                            <form method="post" action="../auth/backend-assets/category/update_category.php">
-                                <input type="hidden" name="category_id" value="<?php echo $category['id']; ?>">
-
-                                <div class="form-group">
-                                    <label for="categoryName">Category Name:</label>
-                                    <input type="text" class="form-control" id="categoryName" name="categoryName" value="<?php echo $category['name']; ?>">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="categoryDescription">Category Description:</label>
-                                    <input type="text" class="form-control" id="categoryDescription" name="categoryDescription" value="<?php echo $category['category_description']; ?>">
-                                </div>
-
-                                <button type="submit" class="btn btn-primary">Update Category</button>
-                            </form>
+                            <!-- Appwarance Actions Bar -->
+                        <div class="appwarance-actions-bar">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadBannerModal">
+                            Add Banner Photo
+                            </button>
                         </div>
 
-                        <!-- Categories -->
-                        <!-- Modal -->
-                        <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
+                        <!-- Upload Banner Modal -->
+                        <div class="modal fade" id="uploadBannerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="addCategoryModalLabel">Add Category</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        <h5 class="modal-title" id="exampleModalLabel">Upload Banner Photo</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
                                     </div>
                                     <div class="modal-body">
-                                        <!-- Your form goes here -->
-                                        <form id="categoryForm" action="../auth/backend-assets/category/add_category.php" method="post">
-                                            <div class="mb-3">
-                                                <label for="categoryName" class="form-label">Category Name</label>
-                                                <input type="text" class="form-control" id="categoryName" name="categoryName" aria-describedby="emailHelp">
+                                        <!-- Your file upload form can go here -->
+                                        <form id="bannerUploadForm" action="../auth/backend-assets/banner/banner-upload.php" method="post" enctype="multipart/form-data">
+                                            <div class="form-group">
+                                                <label for="bannerPhoto">Choose Banner Photo:</label>
+                                                <input type="file" class="form-control-file" id="bannerPhoto" name="banner_photo">
                                             </div>
-                                            <div class="mb-3">
-                                                <label for="categoryDescription" class="form-label">Category Description</label>
-                                                <input type="text" class="form-control" id="categoryDescription" name="categoryDescription">
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Add Category</button>
                                         </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" onclick="submitForm()">Upload</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Banner Photos Table (Replace with actual data) -->
+                        <?php
+                        // Fetch banner photos from the database
+                        $sql = "SELECT id, photo_name FROM banner_photos";
+                        $result = $connection->query($sql);
+
+                        if ($result->rowCount() > 0) {
+                            echo '<table class="table mt-3">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Photo</th>
+                                            <th scope="col">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>';
+
+                            // Output data of each row
+                         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                           echo '<tr>
+                                <th scope="row">' . $row["id"] . '</th>
+                                <td class="banner-photo">
+                                    <img src="../auth/assets/banner/' . $row["photo_name"] . '" alt="' . $row["photo_name"] . '" />
+                                </td>
+                                <td>
+                                    <a type="button" href="../auth/backend-assets/banner/delete_banner.php?id=' . $row["id"] . '" class="btn btn-danger">Delete</a>
+                                </td>
+                            </tr>';
+                        }
+                            echo '</tbody></table>';
+                        } else {
+                            echo "No banner photos found.";
+                        }
+
+                        ?>
+
                     </div>
                 </div>
             </div>
         </div>
 
     </main>
-
-    <!-- Bootstrap JS (you can use the CDN or download the file and host it locally) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
         function toggleUserOptions() {
             var options = document.getElementById("userOptions");
             options.style.display = (options.style.display === 'flex') ? 'none' : 'flex';
         }
-                document.addEventListener('DOMContentLoaded', function () {
+            // script.js
+        document.addEventListener('DOMContentLoaded', function () {
             const wrapperIcon = document.querySelector('.app-sidebar-mb');
             const appWrapperS = document.querySelector('.app-wrapper');
             const deskNav =  document.getElementById("des-nav");
@@ -301,6 +316,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['up_id'])) {
                 appWrapperS.classList.remove('show-sidebar');
             });
         });
+
+         function submitForm() {
+        // Trigger form submission
+        document.getElementById("bannerUploadForm").submit();
+    }
     </script>
     <script src="js/main.js"></script>
 </body>
