@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 29, 2024 at 11:56 AM
+-- Generation Time: Jan 30, 2024 at 11:30 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -45,7 +45,9 @@ INSERT INTO `access_logs` (`id`, `ip_address`, `access_time`) VALUES
 (8, '127.0.0.1', '2024-01-29 02:00:16'),
 (9, '127.0.0.1', '2024-01-29 03:38:57'),
 (10, '127.0.0.1', '2024-01-29 09:17:21'),
-(11, '127.0.0.1', '2024-01-29 09:58:06');
+(11, '127.0.0.1', '2024-01-29 09:58:06'),
+(12, '127.0.0.1', '2024-01-30 01:50:15'),
+(13, '127.0.0.1', '2024-01-30 05:44:45');
 
 -- --------------------------------------------------------
 
@@ -69,6 +71,25 @@ CREATE TABLE `admin_users` (
 
 INSERT INTO `admin_users` (`id`, `username`, `password`, `email`, `profile_photo`, `is_admin`, `date`) VALUES
 (21, 'zkrana', '$2y$10$kiRvG1wE418aRMjXZkCmuemut2iZLCOZTTZzMnglnZXLdLcyfTwAC', 'zkranao@gmail.com', 'super-admin/zkrana/handsome-man-with-laptop.jpg', 0, '2024-01-26 05:42:11');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `banner_photos`
+--
+
+CREATE TABLE `banner_photos` (
+  `id` int(11) NOT NULL,
+  `photo_name` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `banner_photos`
+--
+
+INSERT INTO `banner_photos` (`id`, `photo_name`, `created_at`) VALUES
+(4, '65b8cd010d0cd_photocomposition-horizontal-shopping-banner-with-woman-big-smartphone.jpg', '2024-01-30 10:18:41');
 
 -- --------------------------------------------------------
 
@@ -111,7 +132,8 @@ INSERT INTO `categories` (`id`, `name`, `parent_category_id`, `category_descript
 (14, 'Muslim Wear', 3, 'All religious muslim wear are available.', '2024-01-29 05:45:27', '2024-01-29 05:45:27', 1),
 (21, 'Outside Wear', 14, 'It\'s a sub category of muslim wear', '2024-01-29 06:33:01', '2024-01-29 06:33:01', 2),
 (30, 'Health & Beauty', NULL, 'All health and beauty items are will be added here', '2024-01-29 06:51:53', '2024-01-29 06:52:16', 0),
-(31, 'Skin care', 30, 'It\'s a sub category of health & beauty category', '2024-01-29 06:52:53', '2024-01-29 06:52:53', 1);
+(31, 'Skin care', 30, 'It\'s a sub category of health & beauty category', '2024-01-29 06:52:53', '2024-01-29 06:52:53', 1),
+(32, 'Shoes', 3, 'All ladies shoes are will be with category', '2024-01-30 02:04:26', '2024-01-30 02:04:26', 1);
 
 -- --------------------------------------------------------
 
@@ -153,10 +175,10 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`id`, `name`, `product_photo`, `description`, `price`, `category_id`, `stock_quantity`, `currency_code`, `created_at`, `updated_at`) VALUES
 (3, ' Apple iPhone 14 Pro Max', 0x6950686f6e652d31342d50726f2d446565702d507572706c652d373330302e6a7067, 'iPhone 14 Pro Max', 1500.00, 1, 15, 'BDT', '2024-01-27 09:24:18', '2024-01-29 04:54:14'),
-(4, 'খাঁটি dexe চুলের বিল্ডিং ফাইবার 22g-কালো', 0x33353766323638326365376339383266333330316366373338616264633639382e6a70675f373530783735302e6a70675f2e77656270, 'খাঁটি dexe চুলের বিল্ডিং ফাইবার 22g-কালো', 5200.00, 3, 10, 'BDT', '2024-01-27 09:27:20', '2024-01-27 09:27:20'),
 (5, 'Laikou California Vitamin C Serum ', 0x62303638626332346230633063633134376338636165623465356533363864612e6a70675f33303078307137352e77656270, 'badgeLaikou California Vitamin C Serum Antioxidant Remove Spots -17 ml', 2500.00, 31, 25, 'BDT', '2024-01-27 09:34:01', '2024-01-29 06:53:29'),
 (6, 'রুম স্লিপার শীতকালীন রুম স্লিপার', 0x66633734333462633734616464646664626537316563393666353565653330622e6a70675f373530783735302e6a70675f2e77656270, 'রুম স্লিপার শীতকালীন রুম স্লিপার শীতকালীন উষ্ণ রুম স্লিপার শীতকালীন জুতা পুরুষ/মহিলাদের জন্য ঘরের জুতা', 125.00, 3, 35, 'BDT', '2024-01-29 04:47:03', '2024-01-29 04:47:03'),
-(18, 'Irani Party Abaya Burkha Set', 0x64306235386231633634306235663033626333306461636630303462356339622e6a70675f373530783735302e6a70675f2e77656270, 'Buy APN Men\'s Cut & SEW Polo CALAR T-Shirts P(1) (Medium, Navy) at Amazon.inBuy APN Men\'s Cut & SEW Polo CALAR T-Shirts P(1) (Medium, Navy) at Amazon.in APN Men\'s Cut & SEW Polo CALAR T-Shirts P(1)', 1172.00, 21, 35, 'BDT', '2024-01-29 10:55:21', '2024-01-29 10:55:21');
+(56, 'Dexe Hair Building Fiber-22g', 0x31312d382e6a7067, 'খাঁটি dexe চুলের বিল্ডিং ফাইবার 22g-কালো', 125.00, 30, 20, 'BDT', '2024-01-30 06:06:31', '2024-01-30 06:06:31'),
+(57, 'Irani Party Abaya Burkha Set', 0x61626179612e77656270, 'New Attractive Premium-Quality Step Contrast Irani Party Abaya Burkha Set, Dubai Charry Fabric, Muslim Outerwear Collection 2023', 1172.00, 21, 35, 'BDT', '2024-01-30 06:22:58', '2024-01-30 06:22:58');
 
 -- --------------------------------------------------------
 
@@ -203,7 +225,8 @@ CREATE TABLE `variations` (
 --
 
 INSERT INTO `variations` (`id`, `product_id`, `color`, `sim`, `storage`, `type`, `image_path`) VALUES
-(7, 18, '#800000', 'd', '1', NULL, '../../assets/products/18/variation_1/b80a6a324552d5a4d3510706d3ae6076.jpg_750x750.jpg_.webp');
+(32, 57, '#800000', NULL, NULL, NULL, '../../assets/products/57/variation_1/maroon-abaya.webp'),
+(33, 57, '#006a4e', NULL, NULL, NULL, '../../assets/products/57/variation_2/79bbc951655b6ff3761ea4500e0ce5a5.jpg_750x750.jpg_.webp');
 
 --
 -- Indexes for dumped tables
@@ -219,6 +242,12 @@ ALTER TABLE `access_logs`
 -- Indexes for table `admin_users`
 --
 ALTER TABLE `admin_users`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `banner_photos`
+--
+ALTER TABLE `banner_photos`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -270,13 +299,19 @@ ALTER TABLE `variations`
 -- AUTO_INCREMENT for table `access_logs`
 --
 ALTER TABLE `access_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `admin_users`
 --
 ALTER TABLE `admin_users`
   MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT for table `banner_photos`
+--
+ALTER TABLE `banner_photos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `blocked_ips`
@@ -288,7 +323,7 @@ ALTER TABLE `blocked_ips`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `orders`
@@ -300,7 +335,7 @@ ALTER TABLE `orders`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT for table `requests`
@@ -312,7 +347,7 @@ ALTER TABLE `requests`
 -- AUTO_INCREMENT for table `variations`
 --
 ALTER TABLE `variations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- Constraints for dumped tables
